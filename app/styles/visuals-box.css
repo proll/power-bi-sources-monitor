@@ -1,0 +1,54 @@
+html,
+body {
+	font-family: 'Lato', sans-serif;
+}
+
+body {
+	padding: 5% 10% 10%;
+}
+
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	width: 100%;
+	cursor: default;
+}
+
+thead th {
+	text-align: left;
+	padding: 10px 6px;
+	border-bottom: 1px solid #e0e0e0;
+}
+
+tfoot th {
+	text-align: left;
+	padding: 10px 6px;
+	border-top: 1px solid #e0e0e0;
+}
+
+td {
+	padding: 6px;
+}
+
+tr {
+	transition: all .3s;
+	opacity: 1;
+}
+
+tr:nth-child(2n) {
+	background: rgba(0,0,0,.05);
+}
+
+tr.visual_loading {
+	opacity: .5;
+}
+
+tr.visual_diverged {
+	background: #FD7C79;
+}
+
+
+tbody tr:hover {
+	background: #f5d341;
+}

@@ -1,0 +1,14 @@
+{
+  "author": "Gleb Polushkin",
+  "name": "power-bi-sources-monitor",
+  "dependencies": {
+    "connect": "2.5.x",
+    "http-proxy": "0.8.x"
+  },
+  "scripts": {
+    "start": "node tasks/task-server.js"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  }
+}
