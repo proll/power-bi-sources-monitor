@@ -130,7 +130,7 @@ var VisualsBox = React.createClass({
   render: function() {
     return (
       <div className="visuals-box">
-        <h2>Gallery - CDN Sources monitor</h2>
+        <h2>Gallery - CDN Custom Visuals sources monitor</h2>
         <VisualList data={this.state.data} />
       </div>
     );
