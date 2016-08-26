@@ -139,7 +139,7 @@ var VisualsBox = React.createClass({
 
 $(function() {
   ReactDOM.render(
-    <VisualsBox url="https://wabieu2pbivisuals.blob.core.windows.net/powerbi-visuals/visualCatalog.json"/>,
+    <VisualsBox url="https://visuals.azureedge.net/powerbi-visuals/visualCatalog.json"/>,
     document.getElementById('content')
   );
 })
