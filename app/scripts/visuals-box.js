@@ -109,7 +109,6 @@ var VisualsBox = React.createClass({
       url: this.props.url,
       dataType: 'json',
       type: 'get',
-      cache: false,
       success: function(data) {
         this.setState({data: data});
       }.bind(this),
