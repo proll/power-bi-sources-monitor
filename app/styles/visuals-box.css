@@ -31,6 +31,10 @@ td {
 	padding: 6px;
 }
 
+td small{
+	font-size: .5em;
+}
+
 tr {
 	transition: all .3s;
 	opacity: 1;
