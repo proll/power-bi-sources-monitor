@@ -21,6 +21,11 @@ thead th {
 	border-bottom: 1px solid #e0e0e0;
 }
 
+thead small {
+	font-size: .5em;
+	font-weight: 400;
+}
+
 tfoot th {
 	text-align: left;
 	padding: 10px 6px;
