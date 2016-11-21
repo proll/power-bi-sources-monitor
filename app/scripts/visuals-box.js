@@ -26,6 +26,7 @@ var utils = {
 var Visual = React.createClass({
 
     loadVisualFromCDN: function() {
+      const st = {};
       $.when(
         $.ajax({
           url: 'http://visuals.azureedge.net/dev/' + this.props.visualDevGallery.visual.guid + '.json',
@@ -33,14 +34,12 @@ var Visual = React.createClass({
           type: 'get',
           cache: false,
           success: function(result, status, xhr) {
-              var visual = result;
-              visual.date = xhr.getResponseHeader('Last-Modified');
-              this.setState({
-                  visualDevCDN: visual
-              });
+            var visual = result;
+            visual.date = xhr.getResponseHeader('Last-Modified');
+            st.visualDevCDN = visual;
           }.bind(this),
           error: function(xhr, status, err) {
-            console.error(this.props.visualGallery.visual.guid, status, err.toString());
+            console.error(this.props.visualDevGallery.visual.guid, status, err.toString());
           }.bind(this)
         }),
         $.ajax({
@@ -49,14 +48,12 @@ var Visual = React.createClass({
           type: 'get',
           cache: false,
           success: function(result, status, xhr) {
-              var visual = result;
-              visual.date = xhr.getResponseHeader('Last-Modified');
-              this.setState({
-                  visualDxtCDN: visual
-              });
+            var visual = result;
+            visual.date = xhr.getResponseHeader('Last-Modified');
+            st.visualDxtCDN = visual;
           }.bind(this),
           error: function(xhr, status, err) {
-            console.error(this.props.visualGallery.visual.guid, status, err.toString());
+            console.error(this.props.visualDevGallery.visual.guid, status, err.toString());
           }.bind(this)
         }),
         $.ajax({
@@ -65,20 +62,17 @@ var Visual = React.createClass({
           type: 'get',
           cache: false,
           success: function(result, status, xhr) {
-              var visual = result;
-              visual.date = xhr.getResponseHeader('Last-Modified');
-              this.setState({
-                  visualProdCDN: visual
-              });
+            var visual = result;
+            visual.date = xhr.getResponseHeader('Last-Modified');
+            st.visualProdCDN = visual;
           }.bind(this),
           error: function(xhr, status, err) {
-            console.error(this.props.visualGallery.visual.guid, status, err.toString());
+            console.error(this.props.visualDevGallery.visual.guid, status, err.toString());
           }.bind(this)
         })
-      ).done(function() {
-        this.setState({
-          loading: false
-        });
+      ).always(function() {
+        st.loading = false;
+        this.setState(st);
       }.bind(this));
 
     },
@@ -142,17 +136,20 @@ var Visual = React.createClass({
             dateProdCDN = utils.formatDate(this.state.visualProdCDN.date);
           }
 
-          if (1 
-            && versionDevCDN !== '???' 
-            && versionDxtCDN !== '???' 
-            && versionProdCDN !== '???' 
-            && (0
-                || versionDevGallery !== versionDevCDN
-                || versionDevGallery !== versionDxtCDN
-                || versionDevGallery !== versionProdCDN
-              )
+          if (
+                versionDevGallery !== versionDevCDN
+                || versionDxtGallery !== versionDxtCDN
+                || versionProdGallery !== versionProdCDN
             ) {
             loadingClass += ' visual_diverged';
+          }
+
+          if (
+                versionDevGallery !== versionDxtGallery
+                || versionDevGallery !== versionProdGallery
+                || versionDxtGallery !== versionProdGallery
+            ) {
+            loadingClass += ' visual_progress';
           }
 
           return (
@@ -179,9 +176,9 @@ var Visual = React.createClass({
 var VisualList = React.createClass({
     render: function() {
         var rows = [],
-          visualCDNDefault = {
+          visualDefault = {
             visual: {
-              version: '???',
+              version: '-',
               date: '???'
             }
           };
@@ -194,14 +191,16 @@ var VisualList = React.createClass({
         var dateProdCdn = utils.formatDate(this.props.dataProdCdn.date);
 
         this.props.dataDevGallery.visuals.forEach(function(visual, i) {
+            const visualDXT = this.props.dataDxtGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
+            const visualProd = this.props.dataProdGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             rows.push(
               <Visual 
                 visualDevGallery={visual} 
-                visualDxtGallery={this.props.dataDxtGallery.visuals.find((v) => visual.visual.guid === v.visual.guid)} 
-                visualProdGallery={this.props.dataProdGallery.visuals.find((v) => visual.visual.guid === v.visual.guid)} 
-                visualDevCDN={visualCDNDefault} 
-                visualDxtCDN={visualCDNDefault} 
-                visualProdCDN={visualCDNDefault} 
+                visualDxtGallery={visualDXT} 
+                visualProdGallery={visualProd} 
+                visualDevCDN={visualDefault} 
+                visualDxtCDN={visualDefault} 
+                visualProdCDN={visualDefault} 
                 key={i} />
             );
         }.bind(this));
@@ -233,6 +232,7 @@ var VisualList = React.createClass({
 // Visual Box
 var VisualsBox = React.createClass({
   loadVisualsFromGallery: function() {
+    const st = {}
     $.when(
       // gallery configs
       $.ajax({
@@ -241,9 +241,7 @@ var VisualsBox = React.createClass({
         type: 'get',
         cache: false,
         success: function(result, status, xhr) {
-            this.setState({
-                dataDevGallery: {visuals: result, date: xhr.getResponseHeader('Last-Modified')}
-            });
+            st.dataDevGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
         error: function(xhr, status, err) {
           console.error('dev', status, err.toString());
@@ -255,9 +253,7 @@ var VisualsBox = React.createClass({
         type: 'get',
         cache: false,
         success: function(result, status, xhr) {
-            this.setState({
-                dataDxtGallery: {visuals: result, date: xhr.getResponseHeader('Last-Modified')}
-            });
+            st.dataDxtGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
         error: function(xhr, status, err) {
           console.error('dxt', status, err.toString());
@@ -269,9 +265,7 @@ var VisualsBox = React.createClass({
         type: 'get',
         cache: false,
         success: function(result, status, xhr) {
-            this.setState({
-                dataProdGallery: {visuals: result, date: xhr.getResponseHeader('Last-Modified')}
-            });
+            st.dataProdGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
         error: function(xhr, status, err) {
           console.error('prod', err.toString());
@@ -284,9 +278,7 @@ var VisualsBox = React.createClass({
         type: 'get',
         cache: false,
         success: function(result, status, xhr) {
-            this.setState({
-                dataDevCdn: {visuals: result, date: xhr.getResponseHeader('Last-Modified')}
-            });
+            st.dataDevCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
         error: function(xhr, status, err) {
           console.error('dev', status, err.toString());
@@ -298,9 +290,7 @@ var VisualsBox = React.createClass({
         type: 'get',
         cache: false,
         success: function(result, status, xhr) {
-            this.setState({
-                dataDxtCdn: {visuals: result, date: xhr.getResponseHeader('Last-Modified')}
-            });
+            st.dataDxtCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
         error: function(xhr, status, err) {
           console.error('dxt', status, err.toString());
@@ -312,18 +302,15 @@ var VisualsBox = React.createClass({
         type: 'get',
         cache: false,
         success: function(result, status, xhr) {
-            this.setState({
-                dataProdCdn: {visuals: result, date: xhr.getResponseHeader('Last-Modified')}
-            });
+            st.dataProdCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
         error: function(xhr, status, err) {
           console.error('prod', err.toString());
         }.bind(this)
       })
     ).done(function() {
-      this.setState({
-        loading: false
-      });
+      st.loading = false;
+      this.setState(st);
     }.bind(this));
   },
 

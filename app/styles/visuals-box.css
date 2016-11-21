@@ -53,6 +53,10 @@ tr.visual_loading {
 	opacity: .5;
 }
 
+tr.visual_progress {
+	background: #fdc879;
+}
+
 tr.visual_diverged {
 	background: #FD7C79;
 }
