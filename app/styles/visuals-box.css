@@ -40,6 +40,10 @@ td small{
 	font-size: .5em;
 }
 
+td a {
+	font-size: .75em;
+}
+
 td pre {
 	font-size: .5em;
 	font-family: 'Lato', sans-serif;

@@ -27,9 +27,10 @@ var Visual = React.createClass({
 
     loadVisualFromCDN: function() {
       const st = {};
+      const guid = this.props.visualDevGallery.visual.guid;
       $.when(
         $.ajax({
-          url: 'https://visuals.azureedge.net/dev/' + this.props.visualDevGallery.visual.guid + '.json',
+          url: `https://visuals.azureedge.net/dev/${guid}.json`,
           dataType: 'json',
           type: 'get',
           cache: false,
@@ -37,14 +38,13 @@ var Visual = React.createClass({
             var visual = result;
             visual.date = xhr.getResponseHeader('Last-Modified');
             visual.headers = xhr.getAllResponseHeaders();
+            visual.url = `https://visuals.azureedge.net/dev/${guid}.json`;
             st.visualDevCDN = visual;
           }.bind(this),
-          error: function(xhr, status, err) {
-            console.error(this.props.visualDevGallery.visual.guid, status, err.toString());
-          }.bind(this)
+          complete: function() {checkQueue()}.bind(this)
         }),
         $.ajax({
-          url: 'https://visuals.azureedge.net/dxt/' + this.props.visualDevGallery.visual.guid + '.json',
+          url: `https://visuals.azureedge.net/dxt/${guid}.json`,
           dataType: 'json',
           type: 'get',
           cache: false,
@@ -52,14 +52,13 @@ var Visual = React.createClass({
             var visual = result;
             visual.date = xhr.getResponseHeader('Last-Modified');
             visual.headers = xhr.getAllResponseHeaders();
+            visual.url = `https://visuals.azureedge.net/dxt/${guid}.json`;
             st.visualDxtCDN = visual;
           }.bind(this),
-          error: function(xhr, status, err) {
-            console.error(this.props.visualDevGallery.visual.guid, status, err.toString());
-          }.bind(this)
+          complete: function() {checkQueue()}.bind(this)
         }),
         $.ajax({
-          url: 'https://visuals.azureedge.net/prod/' + this.props.visualDevGallery.visual.guid + '.json',
+          url: `https://visuals.azureedge.net/prod/${guid}.json`,
           dataType: 'json',
           type: 'get',
           cache: false,
@@ -67,14 +66,13 @@ var Visual = React.createClass({
             var visual = result;
             visual.date = xhr.getResponseHeader('Last-Modified');
             visual.headers = xhr.getAllResponseHeaders();
+            visual.url = `https://visuals.azureedge.net/prod/${guid}.json`;
             st.visualProdCDN = visual;
           }.bind(this),
-          error: function(xhr, status, err) {
-            console.error(this.props.visualDevGallery.visual.guid, status, err.toString());
-          }.bind(this)
+          complete: function() {checkQueue()}.bind(this)
         }),
         $.ajax({
-          url: 'https://visuals2.azureedge.net/dev/' + this.props.visualDevGallery.visual.guid + '.json',
+          url: `https://visuals2.azureedge.net/dev/${guid}.json`,
           dataType: 'json',
           type: 'get',
           cache: false,
@@ -82,14 +80,13 @@ var Visual = React.createClass({
             var visual = result;
             visual.date = xhr.getResponseHeader('Last-Modified');
             visual.headers = xhr.getAllResponseHeaders();
+            visual.url = `https://visuals2.azureedge.net/dev/${guid}.json`;
             st.visualDevCDN2 = visual;
           }.bind(this),
-          error: function(xhr, status, err) {
-            console.error(this.props.visualDevGallery.visual.guid, status, err.toString());
-          }.bind(this)
+          complete: function() {checkQueue()}.bind(this)
         }),
         $.ajax({
-          url: 'https://visuals2.azureedge.net/dxt/' + this.props.visualDevGallery.visual.guid + '.json',
+          url: `https://visuals2.azureedge.net/dxt/${guid}.json`,
           dataType: 'json',
           type: 'get',
           cache: false,
@@ -97,14 +94,13 @@ var Visual = React.createClass({
             var visual = result;
             visual.date = xhr.getResponseHeader('Last-Modified');
             visual.headers = xhr.getAllResponseHeaders();
+            visual.url = `https://visuals2.azureedge.net/dxt/${guid}.json`;
             st.visualDxtCDN2 = visual;
           }.bind(this),
-          error: function(xhr, status, err) {
-            console.error(this.props.visualDevGallery.visual.guid, status, err.toString());
-          }.bind(this)
+          complete: function() {checkQueue()}.bind(this)
         }),
         $.ajax({
-          url: 'https://visuals2.azureedge.net/prod/' + this.props.visualDevGallery.visual.guid + '.json',
+          url: `https://visuals2.azureedge.net/prod/${guid}.json`,
           dataType: 'json',
           type: 'get',
           cache: false,
@@ -112,17 +108,23 @@ var Visual = React.createClass({
             var visual = result;
             visual.date = xhr.getResponseHeader('Last-Modified');
             visual.headers = xhr.getAllResponseHeaders();
+            visual.url = `https://visuals2.azureedge.net/prod/${guid}.json`;
             st.visualProdCDN2 = visual;
           }.bind(this),
-          error: function(xhr, status, err) { 
-            console.error(this.props.visualDevGallery.visual.guid, status, err.toString());
-          }.bind(this)
+          complete: function() {checkQueue()}.bind(this)
         })
-      ).always(function() {
-        st.loading = false;
-        this.setState(st);
-      }.bind(this));
+      )
 
+      // can't do with $.always it fires on first failed  defered
+      var cnt = 6;
+      var that = this;
+      var checkQueue = function() {
+        cnt--;
+        if(!cnt) {
+          st.loading = false;
+          that.setState(st);
+        }
+      }
     },
 
     getInitialState: function() {
@@ -248,6 +250,9 @@ var Visual = React.createClass({
           strt = this.state.visualProdCDN2.headers.toLowerCase();
           var validProdCDN2 = strt === '' || !((strt.indexOf('content-type: application/json') === -1) || (strt.indexOf('last-modified: ') === -1) || (strt.indexOf('cache-control: public, max-age=') === -1));
 
+          // if (this.props.visualDevGallery.visual.guid == 'PyramidChartCollabion1473456433387') {
+          //   console.log(this.state);
+          // }
           return (
               <tr className={loadingClass}>
                   <td title={this.props.visualDevGallery.visual.guid}>{this.props.visualDevGallery.visual.displayName}</td>
@@ -255,27 +260,27 @@ var Visual = React.createClass({
                   <td title={'Released ' + dateDxtGallery}>{versionDxtGallery}</td>
                   <td title={'Released ' + dateProdGallery}>{versionProdGallery}</td>
                   <td title={'Last Modified: ' + dateDevCDN} className={ validDevCDN ? '' : 'file_errorheaders'}>
-                    <span>{versionDevCDN}</span>
+                    <span>{versionDevCDN}</span> <a target="_blank" href={this.state.visualDevCDN.url}>↑</a>
                     <pre>{this.state.visualDevCDN.headers}</pre>
                   </td>
                   <td title={'Last Modified: ' + dateDxtCDN} className={ validDxtCDN ? '' : 'file_errorheaders'}>
-                    <span>{versionDxtCDN}</span>
+                    <span>{versionDxtCDN}</span> <a target="_blank" href={this.state.visualDxtCDN.url}>↑</a>
                     <pre>{this.state.visualDxtCDN.headers}</pre>
                   </td>
                   <td title={'Last Modified: ' + dateProdCDN} className={ validProdCDN ? '' : 'file_errorheaders'}>
-                    <span>{versionProdCDN}</span>
+                    <span>{versionProdCDN}</span> <a target="_blank" href={this.state.visualProdCDN.url}>↑</a>
                     <pre>{this.state.visualProdCDN.headers}</pre>
                   </td>
                   <td title={'Last Modified: ' + dateDevCDN2} className={ validDevCDN2 ? '' : 'file_errorheaders'}>
-                    <span>{versionDevCDN2}</span>
+                    <span>{versionDevCDN2}</span> <a target="_blank" href={this.state.visualDevCDN2.url}>↑</a>
                     <pre>{this.state.visualDevCDN2.headers}</pre>
                   </td>
                   <td title={'Last Modified: ' + dateDxtCDN2} className={ validDxtCDN2 ? '' : 'file_errorheaders'}>
-                    <span>{versionDxtCDN2}</span>
+                    <span>{versionDxtCDN2}</span> <a target="_blank" href={this.state.visualDxtCDN2.url}>↑</a>
                     <pre>{this.state.visualDxtCDN2.headers}</pre>
                   </td>
                   <td title={'Last Modified: ' + dateProdCDN2} className={ validProdCDN2 ? '' : 'file_errorheaders'}>
-                    <span>{versionProdCDN2}</span>
+                    <span>{versionProdCDN2}</span> <a target="_blank" href={this.state.visualProdCDN2.url}>↑</a>
                     <pre>{this.state.visualProdCDN2.headers}</pre>
                   </td>
               </tr>
