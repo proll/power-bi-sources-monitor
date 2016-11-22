@@ -40,6 +40,11 @@ td small{
 	font-size: .5em;
 }
 
+td pre {
+	font-size: .5em;
+	font-family: 'Lato', sans-serif;
+}
+
 tr {
 	transition: all .3s;
 	opacity: 1;
@@ -58,6 +63,10 @@ tr.visual_progress {
 }
 
 tr.visual_diverged {
+	background: #FD7C79;
+}
+
+td.file_errorheaders {
 	background: #FD7C79;
 }
 
