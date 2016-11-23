@@ -22,111 +22,56 @@ var utils = {
   },
 }
 
+var Cell = React.createClass({
+  load: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      type: 'get',
+      cache: false,
+      success: function(result, status, xhr) {
+        result.date = xhr.getResponseHeader('Last-Modified');
+        result.headers = xhr.getAllResponseHeaders();
+        this.setState(result);
+      }.bind(this)
+      // ,
+      // complete: function() {checkQueue()}.bind(this)
+    });
+  },
+
+  getInitialState: function() {
+    return {
+        loading: true,
+        visual: {
+          version: '-',
+        },
+        date: '',
+        headers: ''
+    };
+  },
+
+  componentDidMount: function() {
+    this.load();
+  },
+
+  render: function() {
+      var loadingClass = this.props.loading ? 'visual visual_loading' : 'visual';
+
+      var strt = '';
+      strt = this.state.headers.toLowerCase();
+      const is_valid_visual = strt === '' || !((strt.indexOf('content-type: application/json') === -1) || (strt.indexOf('last-modified: ') === -1) || (strt.indexOf('cache-control: public, max-age=') === -1));
+
+      return (
+          <td title={`Last Modified: ${utils.formatDate(this.state.date)}`} className={ is_valid_visual ? '' : 'file_errorheaders'}>
+            <span>{this.state.visual.version}</span> <a target="_blank" href={this.props.url}>↑</a>
+            <pre>{this.state.headers}</pre>
+          </td>
+      );
+  }
+});
+
 // CDN Visual
 var Visual = React.createClass({
-
-    loadVisualFromCDN: function() {
-      const st = {};
-      const guid = this.props.visualDevGallery.visual.guid;
-      $.when(
-        $.ajax({
-          url: `https://visuals.azureedge.net/dev/${guid}.json`,
-          dataType: 'json',
-          type: 'get',
-          cache: false,
-          success: function(result, status, xhr) {
-            var visual = result;
-            visual.date = xhr.getResponseHeader('Last-Modified');
-            visual.headers = xhr.getAllResponseHeaders();
-            visual.url = `https://visuals.azureedge.net/dev/${guid}.json`;
-            st.visualDevCDN = visual;
-          }.bind(this),
-          complete: function() {checkQueue()}.bind(this)
-        }),
-        $.ajax({
-          url: `https://visuals.azureedge.net/dxt/${guid}.json`,
-          dataType: 'json',
-          type: 'get',
-          cache: false,
-          success: function(result, status, xhr) {
-            var visual = result;
-            visual.date = xhr.getResponseHeader('Last-Modified');
-            visual.headers = xhr.getAllResponseHeaders();
-            visual.url = `https://visuals.azureedge.net/dxt/${guid}.json`;
-            st.visualDxtCDN = visual;
-          }.bind(this),
-          complete: function() {checkQueue()}.bind(this)
-        }),
-        $.ajax({
-          url: `https://visuals.azureedge.net/prod/${guid}.json`,
-          dataType: 'json',
-          type: 'get',
-          cache: false,
-          success: function(result, status, xhr) {
-            var visual = result;
-            visual.date = xhr.getResponseHeader('Last-Modified');
-            visual.headers = xhr.getAllResponseHeaders();
-            visual.url = `https://visuals.azureedge.net/prod/${guid}.json`;
-            st.visualProdCDN = visual;
-          }.bind(this),
-          complete: function() {checkQueue()}.bind(this)
-        }),
-        $.ajax({
-          url: `https://visuals2.azureedge.net/dev/${guid}.json`,
-          dataType: 'json',
-          type: 'get',
-          cache: false,
-          success: function(result, status, xhr) {
-            var visual = result;
-            visual.date = xhr.getResponseHeader('Last-Modified');
-            visual.headers = xhr.getAllResponseHeaders();
-            visual.url = `https://visuals2.azureedge.net/dev/${guid}.json`;
-            st.visualDevCDN2 = visual;
-          }.bind(this),
-          complete: function() {checkQueue()}.bind(this)
-        }),
-        $.ajax({
-          url: `https://visuals2.azureedge.net/dxt/${guid}.json`,
-          dataType: 'json',
-          type: 'get',
-          cache: false,
-          success: function(result, status, xhr) {
-            var visual = result;
-            visual.date = xhr.getResponseHeader('Last-Modified');
-            visual.headers = xhr.getAllResponseHeaders();
-            visual.url = `https://visuals2.azureedge.net/dxt/${guid}.json`;
-            st.visualDxtCDN2 = visual;
-          }.bind(this),
-          complete: function() {checkQueue()}.bind(this)
-        }),
-        $.ajax({
-          url: `https://visuals2.azureedge.net/prod/${guid}.json`,
-          dataType: 'json',
-          type: 'get',
-          cache: false,
-          success: function(result, status, xhr) {
-            var visual = result;
-            visual.date = xhr.getResponseHeader('Last-Modified');
-            visual.headers = xhr.getAllResponseHeaders();
-            visual.url = `https://visuals2.azureedge.net/prod/${guid}.json`;
-            st.visualProdCDN2 = visual;
-          }.bind(this),
-          complete: function() {checkQueue()}.bind(this)
-        })
-      )
-
-      // can't do with $.always it fires on first failed  defered
-      var cnt = 6;
-      var that = this;
-      var checkQueue = function() {
-        cnt--;
-        if(!cnt) {
-          st.loading = false;
-          that.setState(st);
-        }
-      }
-    },
-
     getInitialState: function() {
       var visualDefault = {
         visual: {
@@ -137,161 +82,86 @@ var Visual = React.createClass({
       };
       return {
           loading: true,
+          visualTestGallery: this.props.visualTestGallery,
           visualDevGallery: this.props.visualDevGallery,
           visualDxtGallery: this.props.visualDxtGallery,
-          visualProdGallery: this.props.visualProdGallery,
-          visualDevCDN: visualDefault,
-          visualDxtCDN: visualDefault,
-          visualProdCDN: visualDefault,
-          visualDevCDN2: visualDefault,
-          visualDxtCDN2: visualDefault,
-          visualProdCDN2: visualDefault
-
-
+          visualProdGallery: this.props.visualProdGallery
       };
     },
 
-    componentDidMount: function() {
-      this.loadVisualFromCDN();
-    },
-
     render: function() {
-        if (this.props.visualDevGallery) {
-          var loadingClass = this.props.loading ? 'visual visual_loading' : 'visual';
+        var loadingClass = this.props.loading ? 'visual visual_loading' : 'visual';
 
-          var versionDevGallery = this.props.visualDevGallery.visual.version;
-          var versionDxtGallery = this.props.visualDxtGallery.visual.version;
-          var versionProdGallery = this.props.visualProdGallery.visual.version;
+        var versionTestGallery = this.props.visualTestGallery.visual.version;
+        var versionDevGallery = this.props.visualDevGallery.visual.version;
+        var versionDxtGallery = this.props.visualDxtGallery.visual.version;
+        var versionProdGallery = this.props.visualProdGallery.visual.version;
 
-          var versionDevCDN = this.state.visualDevCDN.visual.version;
-          var versionDxtCDN = this.state.visualDxtCDN.visual.version;
-          var versionProdCDN = this.state.visualProdCDN.visual.version;
-
-          var versionDevCDN2 = this.state.visualDevCDN2.visual.version;
-          var versionDxtCDN2 = this.state.visualDxtCDN2.visual.version;
-          var versionProdCDN2 = this.state.visualProdCDN2.visual.version;
-
-          var dateDevGallery = this.state.visualDevGallery.date;
-          if (!!this.props.visualDevGallery.dateLastUpdated) {
-            dateDevGallery = utils.formatDate(this.props.visualDevGallery.dateLastUpdated);
-          }
-
-          var dateDxtGallery = this.state.visualDxtGallery.date;
-          if (!!this.props.visualDxtGallery.dateLastUpdated) {
-            dateDxtGallery = utils.formatDate(this.props.visualDxtGallery.dateLastUpdated);
-          }
-
-          var dateProdGallery = this.state.visualProdGallery.date;
-          if (!!this.props.visualProdGallery.dateLastUpdated) {
-            dateProdGallery = utils.formatDate(this.props.visualProdGallery.dateLastUpdated);
-          }
-
-          var dateDevCDN = this.state.visualDevCDN.date;
-          if (!!this.state.visualDevCDN.date) {
-            dateDevCDN = utils.formatDate(this.state.visualDevCDN.date);
-          }
-
-          var dateDxtCDN = this.state.visualDxtCDN.date;
-          if (!!this.state.visualDxtCDN.date) {
-            dateDxtCDN = utils.formatDate(this.state.visualDxtCDN.date);
-          }
-
-          var dateProdCDN = this.state.visualProdCDN.date;
-          if (!!this.state.visualProdCDN.date) {
-            dateProdCDN = utils.formatDate(this.state.visualProdCDN.date);
-          }
-
-          var dateDevCDN2 = this.state.visualDevCDN2.date;
-          if (!!this.state.visualDevCDN2.date) {
-            dateDevCDN2 = utils.formatDate(this.state.visualDevCDN2.date);
-          }
-
-          var dateDxtCDN2 = this.state.visualDxtCDN2.date;
-          if (!!this.state.visualDxtCDN2.date) {
-            dateDxtCDN2 = utils.formatDate(this.state.visualDxtCDN2.date);
-          }
-
-          var dateProdCDN2 = this.state.visualProdCDN2.date;
-          if (!!this.state.visualProdCDN2.date) {
-            dateProdCDN2 = utils.formatDate(this.state.visualProdCDN2.date);
-          }
-
-
-          if (
-                versionDevGallery !== versionDevCDN
-                || versionDxtGallery !== versionDxtCDN
-                || versionProdGallery !== versionProdCDN
-                || versionDevGallery !== versionDevCDN2
-                || versionDxtGallery !== versionDxtCDN2
-                || versionProdGallery !== versionProdCDN2
-            ) {
-            loadingClass += ' visual_diverged';
-          }
-
-          if (
-                versionDevGallery !== versionDxtGallery
-                || versionDevGallery !== versionProdGallery
-                || versionDxtGallery !== versionProdGallery
-            ) {
-            loadingClass += ' visual_progress';
-          }
-
-          var strt = '';
-          strt = this.state.visualDevCDN.headers.toLowerCase();
-          var validDevCDN = strt === '' || !((strt.indexOf('content-type: application/json') === -1) || (strt.indexOf('last-modified: ') === -1) || (strt.indexOf('cache-control: public, max-age=') === -1));
-          strt = this.state.visualDxtCDN.headers.toLowerCase();
-          var validDxtCDN = strt === '' || !((strt.indexOf('content-type: application/json') === -1) || (strt.indexOf('last-modified: ') === -1) || (strt.indexOf('cache-control: public, max-age=') === -1));
-          strt = this.state.visualProdCDN.headers.toLowerCase();
-          var validProdCDN = strt === '' || !((strt.indexOf('content-type: application/json') === -1) || (strt.indexOf('last-modified: ') === -1) || (strt.indexOf('cache-control: public, max-age=') === -1));
-          strt = this.state.visualDevCDN2.headers.toLowerCase();
-          var validDevCDN2 = strt === '' || !((strt.indexOf('content-type: application/json') === -1) || (strt.indexOf('last-modified: ') === -1) || (strt.indexOf('cache-control: public, max-age=') === -1));
-          strt = this.state.visualDxtCDN2.headers.toLowerCase();
-          var validDxtCDN2 = strt === '' || !((strt.indexOf('content-type: application/json') === -1) || (strt.indexOf('last-modified: ') === -1) || (strt.indexOf('cache-control: public, max-age=') === -1));
-          strt = this.state.visualProdCDN2.headers.toLowerCase();
-          var validProdCDN2 = strt === '' || !((strt.indexOf('content-type: application/json') === -1) || (strt.indexOf('last-modified: ') === -1) || (strt.indexOf('cache-control: public, max-age=') === -1));
-
-          // if (this.props.visualDevGallery.visual.guid == 'PyramidChartCollabion1473456433387') {
-          //   console.log(this.state);
-          // }
-          return (
-              <tr className={loadingClass}>
-                  <td title={this.props.visualDevGallery.visual.guid}>{this.props.visualDevGallery.visual.displayName}</td>
-                  <td title={'Released ' + dateDevGallery}>{versionDevGallery}</td>
-                  <td title={'Released ' + dateDxtGallery}>{versionDxtGallery}</td>
-                  <td title={'Released ' + dateProdGallery}>{versionProdGallery}</td>
-                  <td title={'Last Modified: ' + dateDevCDN} className={ validDevCDN ? '' : 'file_errorheaders'}>
-                    <span>{versionDevCDN}</span> <a target="_blank" href={this.state.visualDevCDN.url}>↑</a>
-                    <pre>{this.state.visualDevCDN.headers}</pre>
-                  </td>
-                  <td title={'Last Modified: ' + dateDxtCDN} className={ validDxtCDN ? '' : 'file_errorheaders'}>
-                    <span>{versionDxtCDN}</span> <a target="_blank" href={this.state.visualDxtCDN.url}>↑</a>
-                    <pre>{this.state.visualDxtCDN.headers}</pre>
-                  </td>
-                  <td title={'Last Modified: ' + dateProdCDN} className={ validProdCDN ? '' : 'file_errorheaders'}>
-                    <span>{versionProdCDN}</span> <a target="_blank" href={this.state.visualProdCDN.url}>↑</a>
-                    <pre>{this.state.visualProdCDN.headers}</pre>
-                  </td>
-                  <td title={'Last Modified: ' + dateDevCDN2} className={ validDevCDN2 ? '' : 'file_errorheaders'}>
-                    <span>{versionDevCDN2}</span> <a target="_blank" href={this.state.visualDevCDN2.url}>↑</a>
-                    <pre>{this.state.visualDevCDN2.headers}</pre>
-                  </td>
-                  <td title={'Last Modified: ' + dateDxtCDN2} className={ validDxtCDN2 ? '' : 'file_errorheaders'}>
-                    <span>{versionDxtCDN2}</span> <a target="_blank" href={this.state.visualDxtCDN2.url}>↑</a>
-                    <pre>{this.state.visualDxtCDN2.headers}</pre>
-                  </td>
-                  <td title={'Last Modified: ' + dateProdCDN2} className={ validProdCDN2 ? '' : 'file_errorheaders'}>
-                    <span>{versionProdCDN2}</span> <a target="_blank" href={this.state.visualProdCDN2.url}>↑</a>
-                    <pre>{this.state.visualProdCDN2.headers}</pre>
-                  </td>
-              </tr>
-          );
-        } else {
-          return (
-            <tr>
-              <td>loading...</td>
-            </tr>
-          );
+        var dateTestGallery = this.state.visualTestGallery.date;
+        if (!!this.props.visualTestGallery.dateLastUpdated) {
+          dateTestGallery = utils.formatDate(this.props.visualTestGallery.dateLastUpdated);
         }
+
+        var dateDevGallery = this.state.visualDevGallery.date;
+        if (!!this.props.visualDevGallery.dateLastUpdated) {
+          dateDevGallery = utils.formatDate(this.props.visualDevGallery.dateLastUpdated);
+        }
+
+        var dateDxtGallery = this.state.visualDxtGallery.date;
+        if (!!this.props.visualDxtGallery.dateLastUpdated) {
+          dateDxtGallery = utils.formatDate(this.props.visualDxtGallery.dateLastUpdated);
+        }
+
+        var dateProdGallery = this.state.visualProdGallery.date;
+        if (!!this.props.visualProdGallery.dateLastUpdated) {
+          dateProdGallery = utils.formatDate(this.props.visualProdGallery.dateLastUpdated);
+        }
+
+        // if (
+        //       versionDevGallery !== versionDevCDN
+        //       || versionDxtGallery !== versionDxtCDN
+        //       || versionProdGallery !== versionProdCDN
+        //       || versionDevGallery !== versionDevCDN2
+        //       || versionDxtGallery !== versionDxtCDN2
+        //       || versionProdGallery !== versionProdCDN2
+        //   ) {
+        //   loadingClass += ' visual_diverged';
+        // }
+
+        // if (
+        //       versionDevGallery !== versionDxtGallery
+        //       || versionDevGallery !== versionProdGallery
+        //       || versionDxtGallery !== versionProdGallery
+        //   ) {
+        //   loadingClass += ' visual_progress';
+        // }
+
+        // if (this.props.visualDevGallery.visual.guid == 'PyramidChartCollabion1473456433387') {
+        //   console.log(this.state);
+        // }
+        // 
+        const guid = this.props.visualTestGallery.visual.guid;
+
+        return (
+            <tr className={loadingClass}>
+                <td>
+                  <span>{this.props.visualTestGallery.visual.displayName}</span><br/>
+                  <small>{this.props.visualTestGallery.visual.guid}</small>
+                </td>
+                <td title={'Released ' + dateTestGallery}>{versionTestGallery}</td>
+                <td title={'Released ' + dateDevGallery}>{versionDevGallery}</td>
+                <td title={'Released ' + dateDxtGallery}>{versionDxtGallery}</td>
+                <td title={'Released ' + dateProdGallery}>{versionProdGallery}</td>
+                <Cell url={`https://visuals.azureedge.net/test/${guid}.json`}/>
+                <Cell url={`https://visuals.azureedge.net/dev/${guid}.json`}/>
+                <Cell url={`https://visuals.azureedge.net/dxt/${guid}.json`}/>
+                <Cell url={`https://visuals.azureedge.net/prod/${guid}.json`}/>
+                <Cell url={`https://visuals2.azureedge.net/test/${guid}.json`}/>
+                <Cell url={`https://visuals2.azureedge.net/dev/${guid}.json`}/>
+                <Cell url={`https://visuals2.azureedge.net/dxt/${guid}.json`}/>
+                <Cell url={`https://visuals2.azureedge.net/prod/${guid}.json`}/>
+            </tr>
+        );
     }
 });
 
@@ -305,22 +175,27 @@ var VisualList = React.createClass({
             }
           };
 
+        var dateTestGallery = utils.formatDate(this.props.dataTestGallery.date);
         var dateDevGallery = utils.formatDate(this.props.dataDevGallery.date);
         var dateDxtGallery = utils.formatDate(this.props.dataDxtGallery.date);
         var dateProdGallery = utils.formatDate(this.props.dataProdGallery.date);
+        var dateTestCdn = utils.formatDate(this.props.dataTestCdn.date);
         var dateDevCdn = utils.formatDate(this.props.dataDevCdn.date);
         var dateDxtCdn = utils.formatDate(this.props.dataDxtCdn.date);
         var dateProdCdn = utils.formatDate(this.props.dataProdCdn.date);
+        var dateTestCdn2 = utils.formatDate(this.props.dataTestCdn2.date);
         var dateDevCdn2 = utils.formatDate(this.props.dataDevCdn2.date);
         var dateDxtCdn2 = utils.formatDate(this.props.dataDxtCdn2.date);
         var dateProdCdn2 = utils.formatDate(this.props.dataProdCdn2.date);
 
-        this.props.dataDevGallery.visuals.forEach(function(visual, i) {
+        this.props.dataTestGallery.visuals.forEach(function(visual, i) {
+            const visualDev = this.props.dataDxtGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualDXT = this.props.dataDxtGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualProd = this.props.dataProdGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             rows.push(
               <Visual 
-                visualDevGallery={visual} 
+                visualTestGallery={visual} 
+                visualDevGallery={visualDev} 
                 visualDxtGallery={visualDXT} 
                 visualProdGallery={visualProd}
                 key={i} />
@@ -331,12 +206,15 @@ var VisualList = React.createClass({
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Gallery test <small>{dateTestGallery}</small></th>
                         <th>Gallery dev <small>{dateDevGallery}</small></th>
                         <th>Gallery dxt <small>{dateDxtGallery}</small></th>
                         <th>Gallery prod <small>{dateProdGallery}</small></th>
+                        <th>CDN test <small>{dateTestCdn}</small></th>
                         <th>CDN dev <small>{dateDevCdn}</small></th>
                         <th>CDN dxt <small>{dateDxtCdn}</small></th>
                         <th>CDN prod <small>{dateProdCdn}</small></th>
+                        <th>CDN2 test <small>{dateTestCdn2}</small></th>
                         <th>CDN2 dev <small>{dateDevCdn2}</small></th>
                         <th>CDN2 dxt <small>{dateDxtCdn2}</small></th>
                         <th>CDN2 prod <small>{dateProdCdn2}</small></th>
@@ -345,7 +223,7 @@ var VisualList = React.createClass({
                 <tbody>{rows}</tbody>
                 <tfoot>
                     <tr>
-                        <th colSpan="7">{rows.length}</th>
+                        <th colSpan="10">{rows.length}</th>
                     </tr>
                 </tfoot>
             </table>
@@ -356,10 +234,22 @@ var VisualList = React.createClass({
 
 // Visual Box
 var VisualsBox = React.createClass({
-  loadVisualsFromGallery: function() {
+  loadVisualConfigs: function() {
     const st = {}
     $.when(
       // gallery configs
+      $.ajax({
+        url: 'https://visuals.azureedge.net/gallery-test/visualCatalog.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataTestGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error('test', status, err.toString());
+        }.bind(this)
+      }),
       $.ajax({
         url: 'https://visuals.azureedge.net/gallery-dev/visualCatalog.json',
         dataType: 'json',
@@ -391,12 +281,18 @@ var VisualsBox = React.createClass({
         cache: false,
         success: function(result, status, xhr) {
             st.dataProdGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error('prod', err.toString());
         }.bind(this)
       }),
       // cdn configs
+      $.ajax({
+        url: 'https://visuals.azureedge.net/test/approvedResources.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataTestCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this)
+      }),
       $.ajax({
         url: 'https://visuals.azureedge.net/dev/approvedResources.json',
         dataType: 'json',
@@ -404,9 +300,6 @@ var VisualsBox = React.createClass({
         cache: false,
         success: function(result, status, xhr) {
             st.dataDevCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error('dev', status, err.toString());
         }.bind(this)
       }),
       $.ajax({
@@ -416,9 +309,6 @@ var VisualsBox = React.createClass({
         cache: false,
         success: function(result, status, xhr) {
             st.dataDxtCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error('dxt', status, err.toString());
         }.bind(this)
       }),
       $.ajax({
@@ -428,12 +318,18 @@ var VisualsBox = React.createClass({
         cache: false,
         success: function(result, status, xhr) {
             st.dataProdCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error('prod', err.toString());
         }.bind(this)
       }),
       // cdn 2 configs
+      $.ajax({
+        url: 'https://visuals2.azureedge.net/test/approvedResources.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataTestCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this)
+      }),
       $.ajax({
         url: 'https://visuals2.azureedge.net/dev/approvedResources.json',
         dataType: 'json',
@@ -441,9 +337,6 @@ var VisualsBox = React.createClass({
         cache: false,
         success: function(result, status, xhr) {
             st.dataDevCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error('dev', status, err.toString());
         }.bind(this)
       }),
       $.ajax({
@@ -453,9 +346,6 @@ var VisualsBox = React.createClass({
         cache: false,
         success: function(result, status, xhr) {
             st.dataDxtCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error('dxt', status, err.toString());
         }.bind(this)
       }),
       $.ajax({
@@ -465,9 +355,6 @@ var VisualsBox = React.createClass({
         cache: false,
         success: function(result, status, xhr) {
             st.dataProdCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error('prod', err.toString());
         }.bind(this)
       })
     ).done(function() {
@@ -478,6 +365,9 @@ var VisualsBox = React.createClass({
 
   getInitialState: function() {
     return {
+      dataTestGallery: {
+        visuals: []
+      },
       dataDevGallery: {
         visuals: []
       },
@@ -487,6 +377,9 @@ var VisualsBox = React.createClass({
       dataProdGallery: {
         visuals: []
       },
+      dataTestCdn: {
+        visuals: []
+      },
       dataDevCdn: {
         visuals: []
       },
@@ -494,6 +387,9 @@ var VisualsBox = React.createClass({
         visuals: []
       },
       dataProdCdn: {
+        visuals: []
+      },
+      dataTestCdn2: {
         visuals: []
       },
       dataDevCdn2: {
@@ -509,7 +405,7 @@ var VisualsBox = React.createClass({
   },
 
   componentDidMount: function() {
-    this.loadVisualsFromGallery();
+    this.loadVisualConfigs();
   },
 
   render: function() {
@@ -517,12 +413,15 @@ var VisualsBox = React.createClass({
       <div className="visuals-box">
         <h2>Gallery - CDN Custom Visuals sources monitor</h2>
         <VisualList 
+          dataTestGallery={this.state.dataTestGallery} 
           dataDevGallery={this.state.dataDevGallery} 
           dataDxtGallery={this.state.dataDxtGallery} 
           dataProdGallery={this.state.dataProdGallery} 
+          dataTestCdn={this.state.dataTestCdn} 
           dataDevCdn={this.state.dataDevCdn} 
           dataDxtCdn={this.state.dataDxtCdn} 
           dataProdCdn={this.state.dataProdCdn} 
+          dataTestCdn2={this.state.dataTestCdn2} 
           dataDevCdn2={this.state.dataDevCdn2} 
           dataDxtCdn2={this.state.dataDxtCdn2} 
           dataProdCdn2={this.state.dataProdCdn2} 
