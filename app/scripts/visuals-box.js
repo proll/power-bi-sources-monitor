@@ -277,18 +277,54 @@ var VisualList = React.createClass({
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Gallery test <small>{dateTestGallery}</small></th>
-                        <th>Gallery dev <small>{dateDevGallery}</small></th>
-                        <th>Gallery dxt <small>{dateDxtGallery}</small></th>
-                        <th>Gallery prod <small>{dateProdGallery}</small></th>
-                        <th>CDN test <small>{dateTestCdn}</small></th>
-                        <th>CDN dev <small>{dateDevCdn}</small></th>
-                        <th>CDN dxt <small>{dateDxtCdn}</small></th>
-                        <th>CDN prod <small>{dateProdCdn}</small></th>
-                        <th>CDN2 test <small>{dateTestCdn2}</small></th>
-                        <th>CDN2 dev <small>{dateDevCdn2}</small></th>
-                        <th>CDN2 dxt <small>{dateDxtCdn2}</small></th>
-                        <th>CDN2 prod <small>{dateProdCdn2}</small></th>
+                        <th>
+                          <span>Gallery test</span> <small>{dateTestGallery}</small>
+                          <a href="https://visuals.azureedge.net/gallery-test/visualCatalog.json" target="_blank">visualCatalog ↑</a>
+                        </th>
+                        <th>
+                          <span>Gallery dev</span> <small>{dateDevGallery}</small>
+                          <a href="https://visuals.azureedge.net/gallery-dev/visualCatalog.json" target="_blank">visualCatalog ↑</a>
+                        </th>
+                        <th>
+                          <span>Gallery dxt</span> <small>{dateDxtGallery}</small>
+                          <a href="https://visuals.azureedge.net/gallery-dxt/visualCatalog.json" target="_blank">visualCatalog ↑</a>
+                        </th>
+                        <th>
+                          <span>Gallery prod</span> <small>{dateProdGallery}</small>
+                          <a href="https://visuals.azureedge.net/gallery-prod/visualCatalog.json" target="_blank">visualCatalog ↑</a>
+                        </th>
+                        <th>
+                          <span>CDN test</span> <small>{dateTestCdn}</small>
+                          <a href="https://visuals.azureedge.net/test/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        </th>
+                        <th>
+                          <span>CDN dev</span> <small>{dateDevCdn}</small>
+                          <a href="https://visuals.azureedge.net/dev/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        </th>
+                        <th>
+                          <span>CDN dxt</span> <small>{dateDxtCdn}</small>
+                          <a href="https://visuals.azureedge.net/dxt/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        </th>
+                        <th>
+                          <span>CDN prod</span> <small>{dateProdCdn}</small>
+                          <a href="https://visuals.azureedge.net/prod/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        </th>
+                        <th>
+                          <span>CDN2 test</span> <small>{dateTestCdn2}</small>
+                          <a href="https://visuals2.azureedge.net/test/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        </th>
+                        <th>
+                          <span>CDN2 dev</span> <small>{dateDevCdn2}</small>
+                          <a href="https://visuals2.azureedge.net/dev/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        </th>
+                        <th>
+                          <span>CDN2 dxt</span> <small>{dateDxtCdn2}</small>
+                          <a href="https://visuals2.azureedge.net/dxt/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        </th>
+                        <th>
+                          <span>CDN2 prod</span> <small>{dateProdCdn2}</small>
+                          <a href="https://visuals2.azureedge.net/prod/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>{rows}</tbody>
@@ -313,7 +349,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals.azureedge.net/gallery-test/visualCatalog.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataTestGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -325,7 +361,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals.azureedge.net/gallery-dev/visualCatalog.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataDevGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -337,7 +373,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals.azureedge.net/gallery-dxt/visualCatalog.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataDxtGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -349,7 +385,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals.azureedge.net/gallery-prod/visualCatalog.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataProdGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -359,7 +395,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals.azureedge.net/test/approvedResources.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataTestCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -368,7 +404,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals.azureedge.net/dev/approvedResources.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataDevCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -377,7 +413,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals.azureedge.net/dxt/approvedResources.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataDxtCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -405,7 +441,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals2.azureedge.net/dev/approvedResources.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataDevCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -414,7 +450,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals2.azureedge.net/dxt/approvedResources.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataDxtCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -423,7 +459,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals2.azureedge.net/prod/approvedResources.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataProdCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
