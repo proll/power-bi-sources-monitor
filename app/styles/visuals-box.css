@@ -49,6 +49,11 @@ td pre {
 	font-family: 'Lato', sans-serif;
 }
 
+td p {
+	font-size: .75em;
+	margin: .5em 0 0;
+}
+
 tr {
 	transition: all .3s;
 	opacity: 1;
@@ -76,5 +81,5 @@ td.file_errorheaders {
 
 
 tbody tr:hover {
-	background: #f5d341;
+	background: #f9e9a3;
 }

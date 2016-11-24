@@ -28,10 +28,11 @@ var Cell = React.createClass({
       url: this.props.url,
       dataType: 'json',
       type: 'get',
-      cache: false,
+      // cache: false,
       success: function(result, status, xhr) {
         result.date = xhr.getResponseHeader('Last-Modified');
         result.headers = xhr.getAllResponseHeaders();
+        result.loading = false;
         this.setState(result);
       }.bind(this)
       // ,
@@ -54,15 +55,19 @@ var Cell = React.createClass({
     this.load();
   },
 
-  render: function() {
-      var loadingClass = this.props.loading ? 'visual visual_loading' : 'visual';
+  componentWillUpdate: function(props, state) {
+      var hdr = state.headers.toLowerCase();
+      const is_valid_visual = hdr === '' || !((hdr.indexOf('content-type: application/json') === -1) || (hdr.indexOf('last-modified: ') === -1) || (hdr.indexOf('cache-control: public, max-age=') === -1));
+      this.props.onLoad(this.props.env, state.visual.version, is_valid_visual);
+  },
 
-      var strt = '';
-      strt = this.state.headers.toLowerCase();
-      const is_valid_visual = strt === '' || !((strt.indexOf('content-type: application/json') === -1) || (strt.indexOf('last-modified: ') === -1) || (strt.indexOf('cache-control: public, max-age=') === -1));
+  render: function() {
+      var loadingClass = this.state.loading ? 'visual visual_loading' : 'visual';
+      var hdr = this.state.headers.toLowerCase();
+      const is_valid_visual = hdr === '' || !((hdr.indexOf('content-type: application/json') === -1) || (hdr.indexOf('last-modified: ') === -1) || (hdr.indexOf('cache-control: public, max-age=') === -1));
 
       return (
-          <td title={`Last Modified: ${utils.formatDate(this.state.date)}`} className={ is_valid_visual ? '' : 'file_errorheaders'}>
+          <td className={ is_valid_visual ? '' : 'file_errorheaders'}>
             <span>{this.state.visual.version}</span> <a target="_blank" href={this.props.url}>↑</a>
             <pre>{this.state.headers}</pre>
           </td>
@@ -73,6 +78,9 @@ var Cell = React.createClass({
 // CDN Visual
 var Visual = React.createClass({
     getInitialState: function() {
+      this.checkCount = 8;
+      this.checkResults = [];
+
       var visualDefault = {
         visual: {
           version: '-',
@@ -81,11 +89,8 @@ var Visual = React.createClass({
         headers: ''
       };
       return {
+          result: '',
           loading: true,
-          visualTestGallery: this.props.visualTestGallery,
-          visualDevGallery: this.props.visualDevGallery,
-          visualDxtGallery: this.props.visualDxtGallery,
-          visualProdGallery: this.props.visualProdGallery
       };
     },
 
@@ -97,71 +102,136 @@ var Visual = React.createClass({
         var versionDxtGallery = this.props.visualDxtGallery.visual.version;
         var versionProdGallery = this.props.visualProdGallery.visual.version;
 
-        var dateTestGallery = this.state.visualTestGallery.date;
         if (!!this.props.visualTestGallery.dateLastUpdated) {
-          dateTestGallery = utils.formatDate(this.props.visualTestGallery.dateLastUpdated);
+          var dateTestGallery = utils.formatDate(this.props.visualTestGallery.dateLastUpdated);
         }
 
-        var dateDevGallery = this.state.visualDevGallery.date;
         if (!!this.props.visualDevGallery.dateLastUpdated) {
-          dateDevGallery = utils.formatDate(this.props.visualDevGallery.dateLastUpdated);
+          var dateDevGallery = utils.formatDate(this.props.visualDevGallery.dateLastUpdated);
         }
 
-        var dateDxtGallery = this.state.visualDxtGallery.date;
         if (!!this.props.visualDxtGallery.dateLastUpdated) {
-          dateDxtGallery = utils.formatDate(this.props.visualDxtGallery.dateLastUpdated);
+          var dateDxtGallery = utils.formatDate(this.props.visualDxtGallery.dateLastUpdated);
         }
 
-        var dateProdGallery = this.state.visualProdGallery.date;
         if (!!this.props.visualProdGallery.dateLastUpdated) {
-          dateProdGallery = utils.formatDate(this.props.visualProdGallery.dateLastUpdated);
+          var dateProdGallery = utils.formatDate(this.props.visualProdGallery.dateLastUpdated);
         }
 
-        // if (
-        //       versionDevGallery !== versionDevCDN
-        //       || versionDxtGallery !== versionDxtCDN
-        //       || versionProdGallery !== versionProdCDN
-        //       || versionDevGallery !== versionDevCDN2
-        //       || versionDxtGallery !== versionDxtCDN2
-        //       || versionProdGallery !== versionProdCDN2
-        //   ) {
-        //   loadingClass += ' visual_diverged';
-        // }
-
-        // if (
-        //       versionDevGallery !== versionDxtGallery
-        //       || versionDevGallery !== versionProdGallery
-        //       || versionDxtGallery !== versionProdGallery
-        //   ) {
-        //   loadingClass += ' visual_progress';
-        // }
-
-        // if (this.props.visualDevGallery.visual.guid == 'PyramidChartCollabion1473456433387') {
-        //   console.log(this.state);
-        // }
-        // 
         const guid = this.props.visualTestGallery.visual.guid;
 
+        var rowClass = 'visual';
+        var resultMessage = '';
+        switch(this.state.result) {
+          case 'progress':
+            rowClass += ' visual_progress';
+            resultMessage = '✅  Visual version is different, it\'s traveling with trains';
+            break;
+
+          case 'diverged':
+            rowClass += ' visual_diverged';
+            resultMessage = '❌  Alert! Visual version is different on gallery or cdn';
+            break;
+
+          default: 
+            resultMessage = '✅';
+        }
+
+
         return (
-            <tr className={loadingClass}>
+            <tr className={rowClass}>
                 <td>
                   <span>{this.props.visualTestGallery.visual.displayName}</span><br/>
                   <small>{this.props.visualTestGallery.visual.guid}</small>
+                  <p>{resultMessage}</p>
                 </td>
                 <td title={'Released ' + dateTestGallery}>{versionTestGallery}</td>
                 <td title={'Released ' + dateDevGallery}>{versionDevGallery}</td>
                 <td title={'Released ' + dateDxtGallery}>{versionDxtGallery}</td>
                 <td title={'Released ' + dateProdGallery}>{versionProdGallery}</td>
-                <Cell url={`https://visuals.azureedge.net/test/${guid}.json`}/>
-                <Cell url={`https://visuals.azureedge.net/dev/${guid}.json`}/>
-                <Cell url={`https://visuals.azureedge.net/dxt/${guid}.json`}/>
-                <Cell url={`https://visuals.azureedge.net/prod/${guid}.json`}/>
-                <Cell url={`https://visuals2.azureedge.net/test/${guid}.json`}/>
-                <Cell url={`https://visuals2.azureedge.net/dev/${guid}.json`}/>
-                <Cell url={`https://visuals2.azureedge.net/dxt/${guid}.json`}/>
-                <Cell url={`https://visuals2.azureedge.net/prod/${guid}.json`}/>
+
+                <Cell url={`https://visuals.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual}/>
+                <Cell url={`https://visuals.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual}/>
+                <Cell url={`https://visuals.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual}/>
+                <Cell url={`https://visuals.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual}/>
+                <Cell url={`https://visuals2.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual}/>
+                <Cell url={`https://visuals2.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual}/>
+                <Cell url={`https://visuals2.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual}/>
+                <Cell url={`https://visuals2.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual}/>
             </tr>
         );
+    },
+
+    checkVisual: function(env, version, isHeadersOk) {
+      const that = this;
+      const st = {};
+
+      this.checkCount--;
+      this.checkResults.push({
+        env, 
+        version,
+        isHeadersOk
+      });
+
+      var galleryVersion = '0.0.0';
+
+      // check results if all loaded
+      if (!this.checkCount) {
+        // progress check for all environvent - at least one different version
+        if (
+          this.props.visualTestGallery.visual.version !== this.props.visualDevGallery.visual.version
+          || this.props.visualDevGallery.visual.version !== this.props.visualDxtGallery.visual.version
+          || this.props.visualDxtGallery.visual.version !== this.props.visualProdGallery.visual.version
+        ) {
+          st.result = 'progress';
+        } else {
+          galleryVersion = this.props.visualTestGallery.visual.version;
+          this.checkResults
+            .reduce((acc, result) => {
+              if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'progress';
+              return result
+            });
+        }
+
+        // test env version divergation check
+        galleryVersion =  this.props.visualTestGallery.visual.version;
+        this.checkResults
+          .filter(result => result.env === 'test')
+          .reduce((acc, result) => {
+            if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'diverged';
+            return result
+          })
+
+        // dev env version divergation check
+        galleryVersion =  this.props.visualDevGallery.visual.version;
+        this.checkResults
+          .filter(result => result.env === 'dev')
+          .reduce((acc, result) => {
+            if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'diverged';
+            return result
+          })
+
+        // dxt env version divergation check
+        galleryVersion =  this.props.visualDxtGallery.visual.version;
+        this.checkResults
+          .filter(result => result.env === 'dxt')
+          .reduce((acc, result) => {
+            if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'diverged';
+            return result
+          })
+
+        // dxt env version divergation check
+        galleryVersion =  this.props.visualProdGallery.visual.version;
+        this.checkResults
+          .filter(result => result.env === 'prod')
+          .reduce((acc, result) => {
+            console.log(galleryVersion, acc.env, result.env);
+            if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'diverged';
+            return result
+          })
+
+        that.setState(st)
+      }
     }
 });
 
@@ -188,14 +258,15 @@ var VisualList = React.createClass({
         var dateDxtCdn2 = utils.formatDate(this.props.dataDxtCdn2.date);
         var dateProdCdn2 = utils.formatDate(this.props.dataProdCdn2.date);
 
-        this.props.dataTestGallery.visuals.forEach(function(visual, i) {
-            const visualDev = this.props.dataDxtGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
+        // TODO: make it on dataTestGallery or even calculate list of guids from all sources
+        this.props.dataDevGallery.visuals.forEach(function(visual, i) {
+            const visualTest = this.props.dataTestGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualDXT = this.props.dataDxtGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualProd = this.props.dataProdGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             rows.push(
               <Visual 
-                visualTestGallery={visual} 
-                visualDevGallery={visualDev} 
+                visualTestGallery={visualTest} 
+                visualDevGallery={visual} 
                 visualDxtGallery={visualDXT} 
                 visualProdGallery={visualProd}
                 key={i} />
