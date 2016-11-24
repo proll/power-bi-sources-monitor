@@ -34,9 +34,10 @@ var Cell = React.createClass({
         result.headers = xhr.getAllResponseHeaders();
         result.loading = false;
         this.setState(result);
+      }.bind(this),
+      error: function() {
+        this.setState({ loading: false});
       }.bind(this)
-      // ,
-      // complete: function() {checkQueue()}.bind(this)
     });
   },
 
@@ -276,53 +277,59 @@ var VisualList = React.createClass({
             <table className="visual-list">
                 <thead>
                     <tr>
+                      <th> </th>
+                      <th colSpan="4"><span>Gallery</span></th>
+                      <th colSpan="4"><span>Cdn</span></th>
+                      <th colSpan="4"><span>Cdn2</span></th>
+                    </tr>
+                    <tr>
                         <th>Name</th>
-                        <th>
-                          <span>Gallery test</span> <small>{dateTestGallery}</small>
+                        <th title={`Last modified: ${dateTestGallery}`}>
+                          <span>test</span>
                           <a href="https://visuals.azureedge.net/gallery-test/visualCatalog.json" target="_blank">visualCatalog ↑</a>
                         </th>
-                        <th>
-                          <span>Gallery dev</span> <small>{dateDevGallery}</small>
+                        <th title={`Last modified: ${dateDevGallery}`}>
+                          <span>dev</span>
                           <a href="https://visuals.azureedge.net/gallery-dev/visualCatalog.json" target="_blank">visualCatalog ↑</a>
                         </th>
-                        <th>
-                          <span>Gallery dxt</span> <small>{dateDxtGallery}</small>
+                        <th title={`Last modified: ${dateDxtGallery}`}>
+                          <span>dxt</span>
                           <a href="https://visuals.azureedge.net/gallery-dxt/visualCatalog.json" target="_blank">visualCatalog ↑</a>
                         </th>
-                        <th>
-                          <span>Gallery prod</span> <small>{dateProdGallery}</small>
+                        <th title={`Last modified: ${dateProdGallery}`}>
+                          <span>prod</span>
                           <a href="https://visuals.azureedge.net/gallery-prod/visualCatalog.json" target="_blank">visualCatalog ↑</a>
                         </th>
-                        <th>
-                          <span>CDN test</span> <small>{dateTestCdn}</small>
+                        <th title={`Last modified: ${dateTestCdn}`}>
+                          <span>test</span>
                           <a href="https://visuals.azureedge.net/test/approvedResources.json" target="_blank">approvedResources ↑</a>
                         </th>
-                        <th>
-                          <span>CDN dev</span> <small>{dateDevCdn}</small>
+                        <th title={`Last modified: ${dateDevCdn}`}>
+                          <span>dev</span>
                           <a href="https://visuals.azureedge.net/dev/approvedResources.json" target="_blank">approvedResources ↑</a>
                         </th>
-                        <th>
-                          <span>CDN dxt</span> <small>{dateDxtCdn}</small>
+                        <th title={`Last modified: ${dateDxtCdn}`}>
+                          <span>dxt</span>
                           <a href="https://visuals.azureedge.net/dxt/approvedResources.json" target="_blank">approvedResources ↑</a>
                         </th>
-                        <th>
-                          <span>CDN prod</span> <small>{dateProdCdn}</small>
+                        <th title={`Last modified: ${dateProdCdn}`}>
+                          <span>prod</span>
                           <a href="https://visuals.azureedge.net/prod/approvedResources.json" target="_blank">approvedResources ↑</a>
                         </th>
-                        <th>
-                          <span>CDN2 test</span> <small>{dateTestCdn2}</small>
+                        <th title={`Last modified: ${dateTestCdn2}`}>
+                          <span>test</span>
                           <a href="https://visuals2.azureedge.net/test/approvedResources.json" target="_blank">approvedResources ↑</a>
                         </th>
-                        <th>
-                          <span>CDN2 dev</span> <small>{dateDevCdn2}</small>
+                        <th title={`Last modified: ${dateDevCdn2}`}>
+                          <span>dev</span>
                           <a href="https://visuals2.azureedge.net/dev/approvedResources.json" target="_blank">approvedResources ↑</a>
                         </th>
-                        <th>
-                          <span>CDN2 dxt</span> <small>{dateDxtCdn2}</small>
+                        <th title={`Last modified: ${dateDxtCdn2}`}>
+                          <span>dxt</span>
                           <a href="https://visuals2.azureedge.net/dxt/approvedResources.json" target="_blank">approvedResources ↑</a>
                         </th>
-                        <th>
-                          <span>CDN2 prod</span> <small>{dateProdCdn2}</small>
+                        <th title={`Last modified: ${dateProdCdn2}`}>
+                          <span>prod</span>
                           <a href="https://visuals2.azureedge.net/prod/approvedResources.json" target="_blank">approvedResources ↑</a>
                         </th>
                     </tr>

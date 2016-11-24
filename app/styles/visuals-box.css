@@ -4,7 +4,7 @@ body {
 }
 
 body {
-	padding: 5% 10% 10%;
+	padding: 5% 2% 10%;
 }
 
 
@@ -65,28 +65,28 @@ td p {
 	margin: .5em 0 0;
 }
 
-tr {
+tbody tr {
 	transition: all .3s;
 	opacity: 1;
 }
 
-tr:nth-child(2n) {
+tbody tr:nth-child(2n) {
 	background: rgba(0,0,0,.05);
 }
 
-tr.visual_loading {
+tbody tr.visual_loading {
 	opacity: .5;
 }
 
-tr.visual_progress {
+tbody tr.visual_progress {
 	background: #fdc879;
 }
 
-tr.visual_diverged {
+tbody tr.visual_diverged {
 	background: #FD7C79;
 }
 
-td.file_errorheaders {
+tbody td.file_errorheaders {
 	background: #FD7C79;
 }
 
