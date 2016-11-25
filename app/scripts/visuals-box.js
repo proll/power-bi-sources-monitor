@@ -22,7 +22,29 @@ var utils = {
   },
 }
 
-var Cell = React.createClass({
+var CellGallery = React.createClass({
+  getInitialState: function() {
+    return {
+        loading: false,
+        visual: {
+          version: '-',
+        },
+        date: !!this.props.visual.dateLastUpdated ? utils.formatDate(this.props.visual.dateLastUpdated) : '',
+        headers: ''
+    };
+  },
+
+  render: function() {
+      var loadingClass = this.state.loading ? 'cell cell_loading' : 'cell';
+      return (
+          <td className="cell" title={`Released: ${this.state.date}`}>
+            <span>{this.props.visual.visual.version}</span> <a target="_blank" href={this.props.url}>↑</a>
+          </td>
+      );
+  }
+});
+
+var CellCDN = React.createClass({
   load: function() {
     $.ajax({
       url: this.props.url,
@@ -63,12 +85,9 @@ var Cell = React.createClass({
   },
 
   render: function() {
-      var loadingClass = this.state.loading ? 'visual visual_loading' : 'visual';
-      var hdr = this.state.headers.toLowerCase();
-      const is_valid_visual = hdr === '' || !((hdr.indexOf('content-type: application/json') === -1) || (hdr.indexOf('last-modified: ') === -1) || (hdr.indexOf('cache-control: public, max-age=') === -1));
-
+      var loadingClass = this.state.loading ? 'cell cell_loading' : 'cell';
       return (
-          <td className={ is_valid_visual ? '' : 'file_errorheaders'} title={this.state.headers}>
+          <td className={loadingClass} title={this.state.headers}>
             <span>{this.state.visual.version}</span> <a target="_blank" href={this.props.url}>↑</a>
           </td>
       );
@@ -96,29 +115,7 @@ var Visual = React.createClass({
 
     render: function() {
         var loadingClass = this.props.loading ? 'visual visual_loading' : 'visual';
-
-        var versionTestGallery = this.props.visualTestGallery.visual.version;
-        var versionDevGallery = this.props.visualDevGallery.visual.version;
-        var versionDxtGallery = this.props.visualDxtGallery.visual.version;
-        var versionProdGallery = this.props.visualProdGallery.visual.version;
-
-        if (!!this.props.visualTestGallery.dateLastUpdated) {
-          var dateTestGallery = utils.formatDate(this.props.visualTestGallery.dateLastUpdated);
-        }
-
-        if (!!this.props.visualDevGallery.dateLastUpdated) {
-          var dateDevGallery = utils.formatDate(this.props.visualDevGallery.dateLastUpdated);
-        }
-
-        if (!!this.props.visualDxtGallery.dateLastUpdated) {
-          var dateDxtGallery = utils.formatDate(this.props.visualDxtGallery.dateLastUpdated);
-        }
-
-        if (!!this.props.visualProdGallery.dateLastUpdated) {
-          var dateProdGallery = utils.formatDate(this.props.visualProdGallery.dateLastUpdated);
-        }
-
-        const guid = this.props.visualTestGallery.visual.guid;
+        const guid = this.props.visualTestGalleryBlob.visual.guid;
 
         var rowClass = 'visual';
         var resultMessage = '';
@@ -146,25 +143,30 @@ var Visual = React.createClass({
                   <p>{resultMessage}</p>
                 </td>
                 <td className="separator"></td>
-                <td title={'Released ' + dateTestGallery}>{versionTestGallery}</td>
-                <td title={'Released ' + dateDevGallery}>{versionDevGallery}</td>
-                <td title={'Released ' + dateDxtGallery}>{versionDxtGallery}</td>
-                <td title={'Released ' + dateProdGallery}>{versionProdGallery}</td>
+                <CellGallery url={`http://extendcustomvisual.blob.core.windows.net/gallery-test/${guid}/package.json`} env="test" onLoad={this.checkVisual} visual={this.props.visualTestGalleryBlob}/>
+                <CellGallery url={`http://extendcustomvisual.blob.core.windows.net/gallery-dev/${guid}/package.json`} env="dev" onLoad={this.checkVisual} visual={this.props.visualDevGalleryBlob}/>
+                <CellGallery url={`http://extendcustomvisual.blob.core.windows.net/gallery-dxt/${guid}/package.json`} env="dxt" onLoad={this.checkVisual} visual={this.props.visualDxtGalleryBlob}/>
+                <CellGallery url={`http://extendcustomvisual.blob.core.windows.net/gallery-prod/${guid}/package.json`} env="prod" onLoad={this.checkVisual} visual={this.props.visualProdGalleryBlob}/>
                 <td className="separator"></td>
-                <Cell url={`http://extendcustomvisual.blob.core.windows.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={false}/>
-                <Cell url={`http://extendcustomvisual.blob.core.windows.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={false}/>
-                <Cell url={`http://extendcustomvisual.blob.core.windows.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={false}/>
-                <Cell url={`http://extendcustomvisual.blob.core.windows.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={false}/>
+                <CellGallery url={`https://visuals.azureedge.net/gallery-test/${guid}/package.json`} env="test" onLoad={this.checkVisual} visual={this.props.visualTestGallery}/>
+                <CellGallery url={`https://visuals.azureedge.net/gallery-dev/${guid}/package.json`} env="dev" onLoad={this.checkVisual} visual={this.props.visualDevGallery}/>
+                <CellGallery url={`https://visuals.azureedge.net/gallery-dxt/${guid}/package.json`} env="dxt" onLoad={this.checkVisual} visual={this.props.visualDxtGallery}/>
+                <CellGallery url={`https://visuals.azureedge.net/gallery-prod/${guid}/package.json`} env="prod" onLoad={this.checkVisual} visual={this.props.visualProdGallery}/>
                 <td className="separator"></td>
-                <Cell url={`https://visuals.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={true}/>
-                <Cell url={`https://visuals.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true}/>
-                <Cell url={`https://visuals.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true}/>
-                <Cell url={`https://visuals.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={false}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={false}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={false}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={false}/>
                 <td className="separator"></td>
-                <Cell url={`https://visuals2.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={true}/>
-                <Cell url={`https://visuals2.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true}/>
-                <Cell url={`https://visuals2.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true}/>
-                <Cell url={`https://visuals2.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true}/>
+                <CellCDN url={`https://visuals.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={true}/>
+                <CellCDN url={`https://visuals.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true}/>
+                <CellCDN url={`https://visuals.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true}/>
+                <CellCDN url={`https://visuals.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true}/>
+                <td className="separator"></td>
+                <CellCDN url={`https://visuals2.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={true}/>
+                <CellCDN url={`https://visuals2.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true}/>
+                <CellCDN url={`https://visuals2.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true}/>
+                <CellCDN url={`https://visuals2.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true}/>
             </tr>
         );
     },
@@ -186,53 +188,42 @@ var Visual = React.createClass({
       if (!this.checkCount) {
         // progress check for all environvent - at least one different version
         if (
-          this.props.visualTestGallery.visual.version !== this.props.visualDevGallery.visual.version
-          || this.props.visualDevGallery.visual.version !== this.props.visualDxtGallery.visual.version
-          || this.props.visualDxtGallery.visual.version !== this.props.visualProdGallery.visual.version
+          this.props.visualTestGalleryBlob.visual.version !== this.props.visualDevGalleryBlob.visual.version
+          || this.props.visualDevGalleryBlob.visual.version !== this.props.visualDxtGalleryBlob.visual.version
+          || this.props.visualDxtGalleryBlob.visual.version !== this.props.visualProdGalleryBlob.visual.version
         ) {
           st.result = 'progress';
-        } else {
-          galleryVersion = this.props.visualTestGallery.visual.version;
-          this.checkResults
-            .reduce((acc, result) => {
-              if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'progress';
-              return result
-            });
         }
 
         // test env version divergation check
-        galleryVersion =  this.props.visualTestGallery.visual.version;
         this.checkResults
           .filter(result => result.env === 'test')
           .reduce((acc, result) => {
-            if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'diverged';
+            if (acc.version !== result.version) st.result = 'diverged test';
             return result
           })
 
         // dev env version divergation check
-        galleryVersion =  this.props.visualDevGallery.visual.version;
         this.checkResults
           .filter(result => result.env === 'dev')
           .reduce((acc, result) => {
-            if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'diverged';
+            if (acc.version !== result.version) st.result = 'diverged dev';
             return result
           })
 
         // dxt env version divergation check
-        galleryVersion =  this.props.visualDxtGallery.visual.version;
         this.checkResults
           .filter(result => result.env === 'dxt')
           .reduce((acc, result) => {
-            if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'diverged';
+            if (acc.version !== result.version) st.result = 'diverged dxt';
             return result
           })
 
         // dxt env version divergation check
-        galleryVersion =  this.props.visualProdGallery.visual.version;
         this.checkResults
           .filter(result => result.env === 'prod')
           .reduce((acc, result) => {
-            if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'diverged';
+            if (acc.version !== result.version) st.result = 'diverged prod';
             return result
           })
 
@@ -251,6 +242,11 @@ var VisualList = React.createClass({
             }
           };
 
+
+        var dateTestGalleryBlob = utils.formatDate(this.props.dataTestGalleryBlob.date);
+        var dateDevGalleryBlob = utils.formatDate(this.props.dataDevGalleryBlob.date);
+        var dateDxtGalleryBlob = utils.formatDate(this.props.dataDxtGalleryBlob.date);
+        var dateProdGalleryBlob = utils.formatDate(this.props.dataProdGalleryBlob.date);
         var dateTestGallery = utils.formatDate(this.props.dataTestGallery.date);
         var dateDevGallery = utils.formatDate(this.props.dataDevGallery.date);
         var dateDxtGallery = utils.formatDate(this.props.dataDxtGallery.date);
@@ -269,14 +265,22 @@ var VisualList = React.createClass({
         var dateProdCdn2 = utils.formatDate(this.props.dataProdCdn2.date);
 
         // TODO: make it on dataTestGallery or even calculate list of guids from all sources
-        this.props.dataDevGallery.visuals.forEach(function(visual, i) {
+        this.props.dataTestGalleryBlob.visuals.forEach(function(visual, i) {
+            const visualDevBlob = this.props.dataDevGalleryBlob.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
+            const visualDXTBlob = this.props.dataDxtGalleryBlob.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
+            const visualProdBlob = this.props.dataProdGalleryBlob.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualTest = this.props.dataTestGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
+            const visualDev = this.props.dataDevGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualDXT = this.props.dataDxtGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualProd = this.props.dataProdGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             rows.push(
               <Visual 
-                visualTestGallery={visualTest} 
-                visualDevGallery={visual} 
+                visualTestGalleryBlob={visual} 
+                visualDevGalleryBlob={visualDevBlob} 
+                visualDxtGalleryBlob={visualDXTBlob} 
+                visualProdGalleryBlob={visualProdBlob}
+                visualTestGallery={visual} 
+                visualDevGallery={visualDev} 
                 visualDxtGallery={visualDXT} 
                 visualProdGallery={visualProd}
                 key={i} />
@@ -288,9 +292,11 @@ var VisualList = React.createClass({
                     <tr>
                       <th> </th>
                       <td className="separator"></td>
-                      <th colSpan="4"><span>Gallery</span></th>
+                      <th colSpan="4"><span>Blob for Gallery →</span></th>
                       <td className="separator"></td>
-                      <th colSpan="4"><span>Blob for CDN</span></th>
+                      <th colSpan="4"><span>Gallery CDN Amakai</span></th>
+                      <td className="separator"></td>
+                      <th colSpan="4"><span>Blob for CDN →</span></th>
                       <td className="separator"></td>
                       <th colSpan="4"><span>CDN Amakai</span></th>
                       <td className="separator"></td>
@@ -298,6 +304,23 @@ var VisualList = React.createClass({
                     </tr>
                     <tr>
                         <th>Name</th>
+                        <td className="separator"></td>
+                        <th>
+                          <span title={`Last modified: ${dateTestGalleryBlob}`}>test</span>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-test/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                        </th>
+                        <th>
+                          <span title={`Last modified: ${dateDevGalleryBlob}`}>dev</span>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-dev/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                        </th>
+                        <th>
+                          <span title={`Last modified: ${dateDxtGalleryBlob}`}>dxt</span>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-dxt/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                        </th>
+                        <th>
+                          <span title={`Last modified: ${dateProdGalleryBlob}`}>prod</span>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-prod/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                        </th>
                         <td className="separator"></td>
                         <th>
                           <span title={`Last modified: ${dateTestGallery}`}>test</span>
@@ -371,7 +394,7 @@ var VisualList = React.createClass({
                 <tbody>{rows}</tbody>
                 <tfoot>
                     <tr>
-                        <th colSpan="14">{rows.length}</th>
+                        <th colSpan="19">{rows.length}</th>
                     </tr>
                 </tfoot>
             </table>
@@ -385,6 +408,52 @@ var VisualsBox = React.createClass({
   loadVisualConfigs: function() {
     const st = {}
     $.when(
+      // blob gallery configs
+      $.ajax({
+        url: 'http://extendcustomvisual.blob.core.windows.net/gallery-test/visualCatalog.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataTestGalleryBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error('test', status, err.toString());
+        }.bind(this)
+      }),
+      $.ajax({
+        url: 'http://extendcustomvisual.blob.core.windows.net/gallery-dev/visualCatalog.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataDevGalleryBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error('dev', status, err.toString());
+        }.bind(this)
+      }),
+      $.ajax({
+        url: 'http://extendcustomvisual.blob.core.windows.net/gallery-dxt/visualCatalog.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataDxtGalleryBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error('dxt', status, err.toString());
+        }.bind(this)
+      }),
+      $.ajax({
+        url: 'http://extendcustomvisual.blob.core.windows.net/gallery-prod/visualCatalog.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataProdGalleryBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this)
+      }),
       // gallery configs
       $.ajax({
         url: 'https://visuals.azureedge.net/gallery-test/visualCatalog.json',
@@ -550,6 +619,18 @@ var VisualsBox = React.createClass({
 
   getInitialState: function() {
     return {
+      dataTestGalleryBlob: {
+        visuals: []
+      },
+      dataDevGalleryBlob: {
+        visuals: []
+      },
+      dataDxtGalleryBlob: {
+        visuals: []
+      },
+      dataProdGalleryBlob: {
+        visuals: []
+      },
       dataTestGallery: {
         visuals: []
       },
@@ -610,6 +691,10 @@ var VisualsBox = React.createClass({
       <div className="visuals-box">
         <h2>Gallery - CDN Custom Visuals sources monitor</h2>
         <VisualList 
+          dataTestGalleryBlob={this.state.dataTestGalleryBlob} 
+          dataDevGalleryBlob={this.state.dataDevGalleryBlob} 
+          dataDxtGalleryBlob={this.state.dataDxtGalleryBlob} 
+          dataProdGalleryBlob={this.state.dataProdGalleryBlob} 
           dataTestGallery={this.state.dataTestGallery} 
           dataDevGallery={this.state.dataDevGallery} 
           dataDxtGallery={this.state.dataDxtGallery} 
