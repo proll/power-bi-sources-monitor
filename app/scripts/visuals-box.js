@@ -68,9 +68,8 @@ var Cell = React.createClass({
       const is_valid_visual = hdr === '' || !((hdr.indexOf('content-type: application/json') === -1) || (hdr.indexOf('last-modified: ') === -1) || (hdr.indexOf('cache-control: public, max-age=') === -1));
 
       return (
-          <td className={ is_valid_visual ? '' : 'file_errorheaders'}>
+          <td className={ is_valid_visual ? '' : 'file_errorheaders'} title={this.state.headers}>
             <span>{this.state.visual.version}</span> <a target="_blank" href={this.props.url}>↑</a>
-            <pre>{this.state.headers}</pre>
           </td>
       );
   }
@@ -146,15 +145,22 @@ var Visual = React.createClass({
                   <small>{this.props.visualTestGallery.visual.guid}</small>
                   <p>{resultMessage}</p>
                 </td>
+                <td className="separator"></td>
                 <td title={'Released ' + dateTestGallery}>{versionTestGallery}</td>
                 <td title={'Released ' + dateDevGallery}>{versionDevGallery}</td>
                 <td title={'Released ' + dateDxtGallery}>{versionDxtGallery}</td>
                 <td title={'Released ' + dateProdGallery}>{versionProdGallery}</td>
-
+                <td className="separator"></td>
+                <Cell url={`http://extendcustomvisual.blob.core.windows.net/test/${guid}.json`} env="test" onLoad={this.checkVisual}/>
+                <Cell url={`http://extendcustomvisual.blob.core.windows.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual}/>
+                <Cell url={`http://extendcustomvisual.blob.core.windows.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual}/>
+                <Cell url={`http://extendcustomvisual.blob.core.windows.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual}/>
+                <td className="separator"></td>
                 <Cell url={`https://visuals.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual}/>
                 <Cell url={`https://visuals.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual}/>
                 <Cell url={`https://visuals.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual}/>
                 <Cell url={`https://visuals.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual}/>
+                <td className="separator"></td>
                 <Cell url={`https://visuals2.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual}/>
                 <Cell url={`https://visuals2.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual}/>
                 <Cell url={`https://visuals2.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual}/>
@@ -226,7 +232,6 @@ var Visual = React.createClass({
         this.checkResults
           .filter(result => result.env === 'prod')
           .reduce((acc, result) => {
-            console.log(galleryVersion, acc.env, result.env);
             if (acc.version !== result.version || result.version !== galleryVersion || result.version !== galleryVersion) st.result = 'diverged';
             return result
           })
@@ -250,6 +255,10 @@ var VisualList = React.createClass({
         var dateDevGallery = utils.formatDate(this.props.dataDevGallery.date);
         var dateDxtGallery = utils.formatDate(this.props.dataDxtGallery.date);
         var dateProdGallery = utils.formatDate(this.props.dataProdGallery.date);
+        var dateTestCdnBlob = utils.formatDate(this.props.dataTestCdnBlob.date);
+        var dateDevCdnBlob = utils.formatDate(this.props.dataDevCdnBlob.date);
+        var dateDxtCdnBlob = utils.formatDate(this.props.dataDxtCdnBlob.date);
+        var dateProdCdnBlob = utils.formatDate(this.props.dataProdCdnBlob.date);
         var dateTestCdn = utils.formatDate(this.props.dataTestCdn.date);
         var dateDevCdn = utils.formatDate(this.props.dataDevCdn.date);
         var dateDxtCdn = utils.formatDate(this.props.dataDxtCdn.date);
@@ -278,66 +287,91 @@ var VisualList = React.createClass({
                 <thead>
                     <tr>
                       <th> </th>
+                      <td className="separator"></td>
                       <th colSpan="4"><span>Gallery</span></th>
-                      <th colSpan="4"><span>Cdn</span></th>
-                      <th colSpan="4"><span>Cdn2</span></th>
+                      <td className="separator"></td>
+                      <th colSpan="4"><span>Blob for CDN</span></th>
+                      <td className="separator"></td>
+                      <th colSpan="4"><span>CDN Amakai</span></th>
+                      <td className="separator"></td>
+                      <th colSpan="4"><span>CDN Verizon</span></th>
                     </tr>
                     <tr>
                         <th>Name</th>
-                        <th title={`Last modified: ${dateTestGallery}`}>
-                          <span>test</span>
-                          <a href="https://visuals.azureedge.net/gallery-test/visualCatalog.json" target="_blank">visualCatalog ↑</a>
+                        <td className="separator"></td>
+                        <th>
+                          <span title={`Last modified: ${dateTestGallery}`}>test</span>
+                          <a href="https://visuals.azureedge.net/gallery-test/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateDevGallery}`}>
-                          <span>dev</span>
-                          <a href="https://visuals.azureedge.net/gallery-dev/visualCatalog.json" target="_blank">visualCatalog ↑</a>
+                        <th>
+                          <span title={`Last modified: ${dateDevGallery}`}>dev</span>
+                          <a href="https://visuals.azureedge.net/gallery-dev/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateDxtGallery}`}>
-                          <span>dxt</span>
-                          <a href="https://visuals.azureedge.net/gallery-dxt/visualCatalog.json" target="_blank">visualCatalog ↑</a>
+                        <th>
+                          <span title={`Last modified: ${dateDxtGallery}`}>dxt</span>
+                          <a href="https://visuals.azureedge.net/gallery-dxt/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateProdGallery}`}>
-                          <span>prod</span>
-                          <a href="https://visuals.azureedge.net/gallery-prod/visualCatalog.json" target="_blank">visualCatalog ↑</a>
+                        <th>
+                          <span title={`Last modified: ${dateProdGallery}`}>prod</span>
+                          <a href="https://visuals.azureedge.net/gallery-prod/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateTestCdn}`}>
-                          <span>test</span>
-                          <a href="https://visuals.azureedge.net/test/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        <td className="separator"></td>
+                        <th>
+                          <span title={`Last modified: ${dateTestCdnBlob}`}>test</span>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/test/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateDevCdn}`}>
-                          <span>dev</span>
-                          <a href="https://visuals.azureedge.net/dev/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        <th>
+                          <span title={`Last modified: ${dateDevCdnBlob}`}>dev</span>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/dev/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateDxtCdn}`}>
-                          <span>dxt</span>
-                          <a href="https://visuals.azureedge.net/dxt/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        <th>
+                          <span title={`Last modified: ${dateDxtCdnBlob}`}>dxt</span>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/dxt/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateProdCdn}`}>
-                          <span>prod</span>
-                          <a href="https://visuals.azureedge.net/prod/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        <th>
+                          <span title={`Last modified: ${dateProdCdnBlob}`}>prod</span>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/prod/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateTestCdn2}`}>
-                          <span>test</span>
-                          <a href="https://visuals2.azureedge.net/test/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        <td className="separator"></td>
+                        <th>
+                          <span title={`Last modified: ${dateTestCdn}`}>test</span>
+                          <a href="https://visuals.azureedge.net/test/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateDevCdn2}`}>
-                          <span>dev</span>
-                          <a href="https://visuals2.azureedge.net/dev/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        <th>
+                          <span title={`Last modified: ${dateDevCdn}`}>dev</span>
+                          <a href="https://visuals.azureedge.net/dev/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateDxtCdn2}`}>
-                          <span>dxt</span>
-                          <a href="https://visuals2.azureedge.net/dxt/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        <th>
+                          <span title={`Last modified: ${dateDxtCdn}`}>dxt</span>
+                          <a href="https://visuals.azureedge.net/dxt/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
                         </th>
-                        <th title={`Last modified: ${dateProdCdn2}`}>
-                          <span>prod</span>
-                          <a href="https://visuals2.azureedge.net/prod/approvedResources.json" target="_blank">approvedResources ↑</a>
+                        <th>
+                          <span title={`Last modified: ${dateProdCdn}`}>prod</span>
+                          <a href="https://visuals.azureedge.net/prod/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                        </th>
+                        <td className="separator"></td>
+                        <th>
+                          <span title={`Last modified: ${dateTestCdn2}`}>test</span>
+                          <a href="https://visuals2.azureedge.net/test/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                        </th>
+                        <th>
+                          <span title={`Last modified: ${dateDevCdn2}`}>dev</span>
+                          <a href="https://visuals2.azureedge.net/dev/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                        </th>
+                        <th>
+                          <span title={`Last modified: ${dateDxtCdn2}`}>dxt</span>
+                          <a href="https://visuals2.azureedge.net/dxt/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                        </th>
+                        <th>
+                          <span title={`Last modified: ${dateProdCdn2}`}>prod</span>
+                          <a href="https://visuals2.azureedge.net/prod/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
                         </th>
                     </tr>
                 </thead>
                 <tbody>{rows}</tbody>
                 <tfoot>
                     <tr>
-                        <th colSpan="10">{rows.length}</th>
+                        <th colSpan="14">{rows.length}</th>
                     </tr>
                 </tfoot>
             </table>
@@ -397,6 +431,43 @@ var VisualsBox = React.createClass({
             st.dataProdGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
       }),
+      // blob cdn configs
+      $.ajax({
+        url: 'http://extendcustomvisual.blob.core.windows.net/test/approvedResources.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataTestCdnBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this)
+      }),
+      $.ajax({
+        url: 'http://extendcustomvisual.blob.core.windows.net/dev/approvedResources.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataDevCdnBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this)
+      }),
+      $.ajax({
+        url: 'http://extendcustomvisual.blob.core.windows.net/dxt/approvedResources.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataDxtCdnBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this)
+      }),
+      $.ajax({
+        url: 'http://extendcustomvisual.blob.core.windows.net/prod/approvedResources.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataProdCdnBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this)
+      }),
       // cdn configs
       $.ajax({
         url: 'https://visuals.azureedge.net/test/approvedResources.json',
@@ -429,7 +500,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals.azureedge.net/prod/approvedResources.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataProdCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -439,7 +510,7 @@ var VisualsBox = React.createClass({
         url: 'https://visuals2.azureedge.net/test/approvedResources.json',
         dataType: 'json',
         type: 'get',
-        cache: false,
+        // cache: false,
         success: function(result, status, xhr) {
             st.dataTestCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -491,6 +562,18 @@ var VisualsBox = React.createClass({
       dataProdGallery: {
         visuals: []
       },
+      dataTestCdnBlob: {
+        visuals: []
+      },
+      dataDevCdnBlob: {
+        visuals: []
+      },
+      dataDxtCdnBlob: {
+        visuals: []
+      },
+      dataProdCdnBlob: {
+        visuals: []
+      },
       dataTestCdn: {
         visuals: []
       },
@@ -531,6 +614,10 @@ var VisualsBox = React.createClass({
           dataDevGallery={this.state.dataDevGallery} 
           dataDxtGallery={this.state.dataDxtGallery} 
           dataProdGallery={this.state.dataProdGallery} 
+          dataTestCdnBlob={this.state.dataTestCdnBlob} 
+          dataDevCdnBlob={this.state.dataDevCdnBlob} 
+          dataDxtCdnBlob={this.state.dataDxtCdnBlob} 
+          dataProdCdnBlob={this.state.dataProdCdnBlob} 
           dataTestCdn={this.state.dataTestCdn} 
           dataDevCdn={this.state.dataDevCdn} 
           dataDxtCdn={this.state.dataDxtCdn} 

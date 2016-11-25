@@ -23,7 +23,11 @@ thead th {
 	text-align: left;
 	padding: 10px 6px;
 	border-bottom: 1px solid #e0e0e0;
-	min-width: 100px;
+}
+
+td.separator {
+	background: #e0e0e0;
+	padding: 1px;
 }
 
 
@@ -34,7 +38,6 @@ thead small {
 
 thead a {
 	font-size: .75em;
-	display: block;
 }
 
 tfoot th {
