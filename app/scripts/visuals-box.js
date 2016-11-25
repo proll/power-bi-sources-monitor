@@ -34,6 +34,10 @@ var CellGallery = React.createClass({
     };
   },
 
+  componentWillMount: function(props, state) {
+      this.props.onLoad(this.props.env, this.props.visual.visual.version, '');
+  },
+
   render: function() {
       var loadingClass = this.state.loading ? 'cell cell_loading' : 'cell';
       return (
@@ -79,9 +83,7 @@ var CellCDN = React.createClass({
   },
 
   componentWillUpdate: function(props, state) {
-      var hdr = state.headers.toLowerCase();
-      const is_valid_visual = hdr === '' || !((hdr.indexOf('content-type: application/json') === -1) || (hdr.indexOf('last-modified: ') === -1) || (hdr.indexOf('cache-control: public, max-age=') === -1));
-      this.props.onLoad(this.props.env, state.visual.version, is_valid_visual);
+      this.props.onLoad(this.props.env, state.visual.version, state.headers);
   },
 
   render: function() {
@@ -97,16 +99,9 @@ var CellCDN = React.createClass({
 // CDN Visual
 var Visual = React.createClass({
     getInitialState: function() {
-      this.checkCount = 8;
+      this.checkCount = 20;
       this.checkResults = [];
 
-      var visualDefault = {
-        visual: {
-          version: '-',
-          date: '???'
-        },
-        headers: ''
-      };
       return {
           result: '',
           loading: true,
@@ -125,9 +120,29 @@ var Visual = React.createClass({
             resultMessage = '✅  Visual version is different, it\'s traveling with trains';
             break;
 
-          case 'diverged':
+          case 'diverged test':
             rowClass += ' visual_diverged';
-            resultMessage = '❌  Alert! Visual version is different on gallery or cdn';
+            resultMessage = '❌ test alert! Visual version is different on gallery or cdn';
+            break;
+
+          case 'diverged dev':
+            rowClass += ' visual_diverged';
+            resultMessage = '❌ dev alert! Visual version is different on gallery or cdn';
+            break;
+
+          case 'diverged dxt':
+            rowClass += ' visual_diverged';
+            resultMessage = '❌ dxt alert! Visual version is different on gallery or cdn';
+            break;
+
+          case 'diverged prod':
+            rowClass += ' visual_diverged';
+            resultMessage = '❌ prod alert! Visual version is different on gallery or cdn';
+            break;
+
+          case 'headers':
+            rowClass += ' visual_headers';
+            resultMessage = '❌ Error in headers!';
             break;
 
           default: 
@@ -171,7 +186,7 @@ var Visual = React.createClass({
         );
     },
 
-    checkVisual: function(env, version, isHeadersOk) {
+    checkVisual: function(env, version, headers) {
       const that = this;
       const st = {};
 
@@ -179,7 +194,7 @@ var Visual = React.createClass({
       this.checkResults.push({
         env, 
         version,
-        isHeadersOk
+        headers
       });
 
       var galleryVersion = '0.0.0';
@@ -225,6 +240,21 @@ var Visual = React.createClass({
           .reduce((acc, result) => {
             if (acc.version !== result.version) st.result = 'diverged prod';
             return result
+          })
+
+        this.checkResults
+          .reduce((acc, result) => {
+            if (acc) {
+                var hdr = headers.toLowerCase();
+                var is_valid = (hdr === '' || !((hdr.indexOf('content-type: application/json') === -1) || (hdr.indexOf('last-modified: ') === -1) || (hdr.indexOf('cache-control: public, max-age=') === -1)));
+                if (!is_valid) {
+                  st.result = 'headers';
+                  return false;
+                } else {
+                  return result;
+                }
+            }
+            return acc
           })
 
         that.setState(st)
