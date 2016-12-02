@@ -99,7 +99,7 @@ var CellCDN = React.createClass({
 // CDN Visual
 var Visual = React.createClass({
     getInitialState: function() {
-      this.checkCount = 20;
+      this.checkCount = 22;
       this.checkResults = [];
 
       return {
@@ -162,11 +162,13 @@ var Visual = React.createClass({
                 <CellGallery url={`http://extendcustomvisual.blob.core.windows.net/gallery-dev/${guid}/package.json`} env="dev" onLoad={this.checkVisual} visual={this.props.visualDevGalleryBlob}/>
                 <CellGallery url={`http://extendcustomvisual.blob.core.windows.net/gallery-dxt/${guid}/package.json`} env="dxt" onLoad={this.checkVisual} visual={this.props.visualDxtGalleryBlob}/>
                 <CellGallery url={`http://extendcustomvisual.blob.core.windows.net/gallery-prod/${guid}/package.json`} env="prod" onLoad={this.checkVisual} visual={this.props.visualProdGalleryBlob}/>
+                <CellGallery url={`http://extendcustomvisual.blob.core.windows.net/powerbi-visuals/${guid}/package.json`} env="prod" onLoad={this.checkVisual} visual={this.props.visualOldGalleryBlob}/>
                 <td className="separator"></td>
                 <CellGallery url={`https://visuals.azureedge.net/gallery-test/${guid}/package.json`} env="test" onLoad={this.checkVisual} visual={this.props.visualTestGallery}/>
                 <CellGallery url={`https://visuals.azureedge.net/gallery-dev/${guid}/package.json`} env="dev" onLoad={this.checkVisual} visual={this.props.visualDevGallery}/>
                 <CellGallery url={`https://visuals.azureedge.net/gallery-dxt/${guid}/package.json`} env="dxt" onLoad={this.checkVisual} visual={this.props.visualDxtGallery}/>
                 <CellGallery url={`https://visuals.azureedge.net/gallery-prod/${guid}/package.json`} env="prod" onLoad={this.checkVisual} visual={this.props.visualProdGallery}/>
+                <CellGallery url={`https://visuals.azureedge.net/powerbi-visuals/${guid}/package.json`} env="prod" onLoad={this.checkVisual} visual={this.props.visualOldGallery}/>
                 <td className="separator"></td>
                 <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={false}/>
                 <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={false}/>
@@ -273,10 +275,12 @@ var VisualList = React.createClass({
           };
 
 
+        var dateOldGalleryBlob = utils.formatDate(this.props.dataOldGalleryBlob.date);
         var dateTestGalleryBlob = utils.formatDate(this.props.dataTestGalleryBlob.date);
         var dateDevGalleryBlob = utils.formatDate(this.props.dataDevGalleryBlob.date);
         var dateDxtGalleryBlob = utils.formatDate(this.props.dataDxtGalleryBlob.date);
         var dateProdGalleryBlob = utils.formatDate(this.props.dataProdGalleryBlob.date);
+        var dateOldGallery = utils.formatDate(this.props.dataOldGallery.date);
         var dateTestGallery = utils.formatDate(this.props.dataTestGallery.date);
         var dateDevGallery = utils.formatDate(this.props.dataDevGallery.date);
         var dateDxtGallery = utils.formatDate(this.props.dataDxtGallery.date);
@@ -296,19 +300,23 @@ var VisualList = React.createClass({
 
         // TODO: make it on dataTestGallery or even calculate list of guids from all sources
         this.props.dataTestGalleryBlob.visuals.forEach(function(visual, i) {
+            const visualOldBlob = this.props.dataOldGalleryBlob.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualDevBlob = this.props.dataDevGalleryBlob.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualDXTBlob = this.props.dataDxtGalleryBlob.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualProdBlob = this.props.dataProdGalleryBlob.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
+            const visualOld = this.props.dataOldGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualTest = this.props.dataTestGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualDev = this.props.dataDevGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualDXT = this.props.dataDxtGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             const visualProd = this.props.dataProdGallery.visuals.find((v) => visual.visual.guid === v.visual.guid) || visualDefault;
             rows.push(
               <Visual 
+                visualOldGalleryBlob={visualOldBlob} 
                 visualTestGalleryBlob={visual} 
                 visualDevGalleryBlob={visualDevBlob} 
                 visualDxtGalleryBlob={visualDXTBlob} 
                 visualProdGalleryBlob={visualProdBlob}
+                visualOldGallery={visualOld} 
                 visualTestGallery={visual} 
                 visualDevGallery={visualDev} 
                 visualDxtGallery={visualDXT} 
@@ -322,9 +330,9 @@ var VisualList = React.createClass({
                     <tr>
                       <th> </th>
                       <td className="separator"></td>
-                      <th colSpan="4"><span>Blob for Gallery →</span></th>
+                      <th colSpan="5"><span>Blob for Gallery →</span></th>
                       <td className="separator"></td>
-                      <th colSpan="4"><span>Gallery CDN Amakai</span></th>
+                      <th colSpan="5"><span>Gallery CDN Amakai</span></th>
                       <td className="separator"></td>
                       <th colSpan="4"><span>Blob for CDN →</span></th>
                       <td className="separator"></td>
@@ -351,6 +359,10 @@ var VisualList = React.createClass({
                           <span title={`Last modified: ${dateProdGalleryBlob}`}>prod</span>
                           <a href="http://extendcustomvisual.blob.core.windows.net/gallery-prod/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
                         </th>
+                        <th>
+                          <span title={`Last modified: ${dateOldGalleryBlob}`}>prod old</span>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/powerbi-visuals/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                        </th>
                         <td className="separator"></td>
                         <th>
                           <span title={`Last modified: ${dateTestGallery}`}>test</span>
@@ -367,6 +379,10 @@ var VisualList = React.createClass({
                         <th>
                           <span title={`Last modified: ${dateProdGallery}`}>prod</span>
                           <a href="https://visuals.azureedge.net/gallery-prod/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                        </th>
+                        <th>
+                          <span title={`Last modified: ${dateOldGallery}`}>prod old</span>
+                          <a href="https://visuals.azureedge.net/powerbi-visuals/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
                         </th>
                         <td className="separator"></td>
                         <th>
@@ -424,7 +440,7 @@ var VisualList = React.createClass({
                 <tbody>{rows}</tbody>
                 <tfoot>
                     <tr>
-                        <th colSpan="19">{rows.length}</th>
+                        <th colSpan="21">{rows.length}</th>
                     </tr>
                 </tfoot>
             </table>
@@ -439,6 +455,18 @@ var VisualsBox = React.createClass({
     const st = {}
     $.when(
       // blob gallery configs
+      $.ajax({
+        url: 'http://extendcustomvisual.blob.core.windows.net/powerbi-visuals/visualCatalog.json',
+        dataType: 'json',
+        type: 'get',
+        cache: false,
+        success: function(result, status, xhr) {
+            st.dataOldGalleryBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error('test', status, err.toString());
+        }.bind(this)
+      }),
       $.ajax({
         url: 'http://extendcustomvisual.blob.core.windows.net/gallery-test/visualCatalog.json',
         dataType: 'json',
@@ -485,6 +513,18 @@ var VisualsBox = React.createClass({
         }.bind(this)
       }),
       // gallery configs
+      $.ajax({
+        url: 'https://visuals.azureedge.net/powerbi-visuals/visualCatalog.json',
+        dataType: 'json',
+        type: 'get',
+        // cache: false,
+        success: function(result, status, xhr) {
+            st.dataOldGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error('test', status, err.toString());
+        }.bind(this)
+      }),
       $.ajax({
         url: 'https://visuals.azureedge.net/gallery-test/visualCatalog.json',
         dataType: 'json',
@@ -649,6 +689,9 @@ var VisualsBox = React.createClass({
 
   getInitialState: function() {
     return {
+      dataOldGalleryBlob: {
+        visuals: []
+      },
       dataTestGalleryBlob: {
         visuals: []
       },
@@ -659,6 +702,9 @@ var VisualsBox = React.createClass({
         visuals: []
       },
       dataProdGalleryBlob: {
+        visuals: []
+      },
+      dataOldGallery: {
         visuals: []
       },
       dataTestGallery: {
@@ -721,10 +767,12 @@ var VisualsBox = React.createClass({
       <div className="visuals-box">
         <h2>Gallery - CDN Custom Visuals sources monitor</h2>
         <VisualList 
+          dataOldGalleryBlob={this.state.dataOldGalleryBlob} 
           dataTestGalleryBlob={this.state.dataTestGalleryBlob} 
           dataDevGalleryBlob={this.state.dataDevGalleryBlob} 
           dataDxtGalleryBlob={this.state.dataDxtGalleryBlob} 
           dataProdGalleryBlob={this.state.dataProdGalleryBlob} 
+          dataOldGallery={this.state.dataOldGallery} 
           dataTestGallery={this.state.dataTestGallery} 
           dataDevGallery={this.state.dataDevGallery} 
           dataDxtGallery={this.state.dataDxtGallery} 
