@@ -39,10 +39,11 @@ var CellGallery = React.createClass({
   },
 
   render: function() {
-      var loadingClass = this.state.loading ? 'cell cell_loading' : 'cell';
+      var cellClass = this.state.loading ? 'cell cell_loading' : 'cell';
+      cellClass += this.props.visual.metadata ? ' cell_pbiviz-tools' : '';
       return (
-          <td className="cell" title={`Released: ${this.state.date}`}>
-            <span>{this.props.visual.visual.version}</span> <a target="_blank" href={this.props.url}>↑</a>
+          <td className={cellClass} title={`Released: ${this.state.date}`}>
+            <a target="_blank" href={this.props.url}>{this.props.visual.visual.version}</a>
           </td>
       );
   }
@@ -87,10 +88,11 @@ var CellCDN = React.createClass({
   },
 
   render: function() {
-      var loadingClass = this.state.loading ? 'cell cell_loading' : 'cell';
+      var cellClass = this.state.loading ? 'cell cell_loading' : 'cell';
+      cellClass += this.state.metadata ? ' cell_pbiviz-tools' : '';
       return (
-          <td className={loadingClass} title={this.state.headers}>
-            <span>{this.state.visual.version}</span> <a target="_blank" href={this.props.url}>↑</a>
+          <td className={cellClass} title={this.state.headers}>
+            <a target="_blank" href={this.props.url}>{this.state.visual.version}</a>
           </td>
       );
   }
@@ -154,7 +156,7 @@ var Visual = React.createClass({
             <tr className={rowClass}>
                 <td>
                   <span>{this.props.visualTestGallery.visual.displayName}</span><br/>
-                  <small>{this.props.visualTestGallery.visual.guid}</small>
+                  <small><a target="_blank" href={`https://app.powerbi.com/visuals/show/${this.props.visualTestGallery.visual.guid}`}>{this.props.visualTestGallery.visual.guid}</a></small>
                   <p>{resultMessage}</p>
                 </td>
                 <td className="separator"></td>
@@ -274,7 +276,6 @@ var VisualList = React.createClass({
             }
           };
 
-
         var dateOldGalleryBlob = utils.formatDate(this.props.dataOldGalleryBlob.date);
         var dateTestGalleryBlob = utils.formatDate(this.props.dataTestGalleryBlob.date);
         var dateDevGalleryBlob = utils.formatDate(this.props.dataDevGalleryBlob.date);
@@ -344,96 +345,74 @@ var VisualList = React.createClass({
                         <th>Name</th>
                         <td className="separator"></td>
                         <th>
-                          <span title={`Last modified: ${dateTestGalleryBlob}`}>test</span>
-                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-test/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-test/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateTestGalleryBlob}`}>test</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateDevGalleryBlob}`}>dev</span>
-                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-dev/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-dev/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateDevGalleryBlob}`}>dev</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateDxtGalleryBlob}`}>dxt</span>
-                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-dxt/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-dxt/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateDxtGalleryBlob}`}>dxt</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateProdGalleryBlob}`}>prod</span>
-                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-prod/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/gallery-prod/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateProdGalleryBlob}`}>prod</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateOldGalleryBlob}`}>prod old</span>
-                          <a href="http://extendcustomvisual.blob.core.windows.net/powerbi-visuals/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/powerbi-visuals/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateOldGalleryBlob}`}>prod old</a>
                         </th>
                         <td className="separator"></td>
                         <th>
-                          <span title={`Last modified: ${dateTestGallery}`}>test</span>
-                          <a href="https://visuals.azureedge.net/gallery-test/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                          <a href="https://visuals.azureedge.net/gallery-test/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateTestGallery}`}>test</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateDevGallery}`}>dev</span>
-                          <a href="https://visuals.azureedge.net/gallery-dev/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                          <a href="https://visuals.azureedge.net/gallery-dev/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateDevGallery}`}>dev</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateDxtGallery}`}>dxt</span>
-                          <a href="https://visuals.azureedge.net/gallery-dxt/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                          <a href="https://visuals.azureedge.net/gallery-dxt/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateDxtGallery}`}>dxt</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateProdGallery}`}>prod</span>
-                          <a href="https://visuals.azureedge.net/gallery-prod/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                          <a href="https://visuals.azureedge.net/gallery-prod/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateProdGallery}`}>prod</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateOldGallery}`}>prod old</span>
-                          <a href="https://visuals.azureedge.net/powerbi-visuals/visualCatalog.json" target="_blank" title="visualCatalog.json">↑</a>
+                          <a href="https://visuals.azureedge.net/powerbi-visuals/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateOldGallery}`}>prod old</a>
                         </th>
                         <td className="separator"></td>
                         <th>
-                          <span title={`Last modified: ${dateTestCdnBlob}`}>test</span>
-                          <a href="http://extendcustomvisual.blob.core.windows.net/test/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/test/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateTestCdnBlob}`}>test</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateDevCdnBlob}`}>dev</span>
-                          <a href="http://extendcustomvisual.blob.core.windows.net/dev/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/dev/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateDevCdnBlob}`}>dev</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateDxtCdnBlob}`}>dxt</span>
-                          <a href="http://extendcustomvisual.blob.core.windows.net/dxt/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/dxt/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateDxtCdnBlob}`}>dxt</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateProdCdnBlob}`}>prod</span>
-                          <a href="http://extendcustomvisual.blob.core.windows.net/prod/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/prod/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateProdCdnBlob}`}>prod</a>
                         </th>
                         <td className="separator"></td>
                         <th>
-                          <span title={`Last modified: ${dateTestCdn}`}>test</span>
-                          <a href="https://visuals.azureedge.net/test/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="https://visuals.azureedge.net/test/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateTestCdn}`}>test</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateDevCdn}`}>dev</span>
-                          <a href="https://visuals.azureedge.net/dev/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="https://visuals.azureedge.net/dev/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateDevCdn}`}>dev</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateDxtCdn}`}>dxt</span>
-                          <a href="https://visuals.azureedge.net/dxt/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="https://visuals.azureedge.net/dxt/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateDxtCdn}`}>dxt</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateProdCdn}`}>prod</span>
-                          <a href="https://visuals.azureedge.net/prod/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="https://visuals.azureedge.net/prod/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateProdCdn}`}>prod</a>
                         </th>
                         <td className="separator"></td>
                         <th>
-                          <span title={`Last modified: ${dateTestCdn2}`}>test</span>
-                          <a href="https://visuals2.azureedge.net/test/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="https://visuals2.azureedge.net/test/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateTestCdn2}`}>test</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateDevCdn2}`}>dev</span>
-                          <a href="https://visuals2.azureedge.net/dev/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="https://visuals2.azureedge.net/dev/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateDevCdn2}`}>dev</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateDxtCdn2}`}>dxt</span>
-                          <a href="https://visuals2.azureedge.net/dxt/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="https://visuals2.azureedge.net/dxt/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateDxtCdn2}`}>dxt</a>
                         </th>
                         <th>
-                          <span title={`Last modified: ${dateProdCdn2}`}>prod</span>
-                          <a href="https://visuals2.azureedge.net/prod/approvedResources.json" target="_blank" title="approvedResources.json">↑</a>
+                          <a href="https://visuals2.azureedge.net/prod/approvedResources.json" target="_blank" title={`approvedResources.json \nLast modified: ${dateProdCdn2}`}>prod</a>
                         </th>
                     </tr>
                 </thead>

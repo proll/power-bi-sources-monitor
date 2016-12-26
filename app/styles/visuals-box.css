@@ -36,10 +36,6 @@ thead small {
 	font-weight: 400;
 }
 
-thead a {
-	font-size: .75em;
-}
-
 tfoot th {
 	text-align: left;
 	padding: 10px 6px;
@@ -96,4 +92,31 @@ tbody td.file_errorheaders {
 
 tbody tr:hover {
 	background: #f9e9a3;
+}
+
+.cell {
+	white-space: nowrap;
+}
+
+.cell_pbiviz-tools {
+	position: relative;
+}
+	
+.cell_pbiviz-tools a:after {
+	content: 'new api';
+	font-size: .2em;
+	display: inline-block;
+	vertical-align: top;
+	margin-top: -4px;
+}
+
+.cell a {
+	font-size: .75em;
+	text-decoration: none;
+	color: #000;
+}
+
+.cell a:hover {
+	text-decoration: underline;
+	color: #000;
 }
