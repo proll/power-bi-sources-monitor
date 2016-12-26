@@ -56,10 +56,6 @@ var CellCDN = React.createClass({
       dataType: 'json',
       type: 'get',
       cache: this.props.cache,
-      beforeSend: function(xhr) {
-        xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-      },
       success: function(result, status, xhr) {
         result.date = xhr.getResponseHeader('Last-Modified');
         result.headers = xhr.getAllResponseHeaders();
@@ -443,10 +439,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataOldGalleryBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -459,10 +451,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataTestGalleryBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -475,10 +463,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataDevGalleryBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -491,10 +475,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataDxtGalleryBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -517,10 +497,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataOldGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -533,10 +509,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataTestGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -549,10 +521,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataDevGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -565,10 +533,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataDxtGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this),
@@ -581,10 +545,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataProdGallery = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -595,10 +555,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataTestCdnBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -608,10 +564,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataDevCdnBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -621,10 +573,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataDxtCdnBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -644,10 +592,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataTestCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -657,10 +601,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataDevCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -679,10 +619,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataProdCdn = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -693,10 +629,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataTestCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -706,10 +638,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataDevCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -719,10 +647,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataDxtCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
@@ -732,10 +656,6 @@ var VisualsBox = React.createClass({
         dataType: 'json',
         type: 'get',
         // cache: false,
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', 'no-cache');
-          xhr.setRequestHeader('pragma', 'no-cache');
-        },
         success: function(result, status, xhr) {
             st.dataProdCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
