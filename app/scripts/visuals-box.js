@@ -458,7 +458,8 @@ var VisualsBox = React.createClass({
         type: 'get',
         cache: false,
         beforeSend: function(xhr) {
-          xhr.setRequestHeader('cache-control', no-cache);
+          xhr.setRequestHeader('cache-control', 'no-cache');
+          xhr.setRequestHeader('pragma', 'no-cache');
         },
         success: function(result, status, xhr) {
             st.dataTestGalleryBlob = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
