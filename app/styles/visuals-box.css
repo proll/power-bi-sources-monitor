@@ -4,7 +4,60 @@ body {
 }
 
 body {
-	padding: 5% 2% 10%;
+	padding: 0;
+	margin: 0;
+}
+
+body * {
+	box-sizing: border-box;
+}
+
+.visuals-box {
+	font-size: 12px;
+}
+
+.visual-header-line {
+	position: fixed;
+	width: 100%;
+	background: #fff;
+	z-index: 2;
+}
+
+tbody {
+	display: block;
+	margin-top: 80px;
+}
+
+tr {
+	display: block;
+	border-bottom: 1px solid #e0e0e0;
+	position: relative;
+	width: 1350px;
+	margin: 0 auto;
+}
+
+td,
+th {
+	width: 50px;
+	display: inline-block;
+	vertical-align: top;
+	min-height: 40px;
+}
+
+.c4 {
+	width: 200px;
+}
+
+.c5 {
+	width: 250px;
+}
+
+td.separator {
+	background: #e0e0e0;
+	width: 1px;
+	padding: 0;
+	position: absolute;
+	height: 100%;
 }
 
 
@@ -15,31 +68,23 @@ table {
 	cursor: default;
 }
 
-thead {
-	position: sticky;
-}
-
 thead th {
 	text-align: left;
 	padding: 10px 6px;
-	border-bottom: 1px solid #e0e0e0;
 }
-
-td.separator {
-	background: #e0e0e0;
-	padding: 1px;
-}
-
 
 thead small {
-	font-size: .5em;
+	font-size: .75em;
 	font-weight: 400;
+}
+
+tfoot tr {
+	border-bottom: 0 none;
 }
 
 tfoot th {
 	text-align: left;
 	padding: 10px 6px;
-	border-top: 1px solid #e0e0e0;
 }
 
 td {
@@ -47,20 +92,15 @@ td {
 }
 
 td small{
-	font-size: .5em;
-}
-
-td a {
 	font-size: .75em;
 }
 
 td pre {
-	font-size: .5em;
+	font-size: .75em;
 	font-family: 'Lato', sans-serif;
 }
 
 td p {
-	font-size: .75em;
 	margin: .5em 0 0;
 }
 
@@ -103,15 +143,14 @@ tbody tr:hover {
 }
 	
 .cell_pbiviz-tools a:after {
-	content: 'new api';
-	font-size: .2em;
+	content: 'api';
+	font-size: .5em;
 	display: inline-block;
 	vertical-align: top;
 	margin-top: -4px;
 }
 
 .cell a {
-	font-size: .75em;
 	text-decoration: none;
 	color: #000;
 }

@@ -154,7 +154,7 @@ var Visual = React.createClass({
 
         return (
             <tr className={rowClass}>
-                <td>
+                <td className="c5">
                   <span>{this.props.visualTestGallery.visual.displayName}</span><br/>
                   <small><a target="_blank" href={`https://app.powerbi.com/visuals/show/${this.props.visualTestGallery.visual.guid}`}>{this.props.visualTestGallery.visual.guid}</a></small>
                   <p>{resultMessage}</p>
@@ -327,22 +327,22 @@ var VisualList = React.createClass({
         }.bind(this));
         return (
             <table className="visual-list">
-                <thead>
+                <thead className="visual-header-line">
                     <tr>
-                      <th> </th>
+                      <th className="c5"> </th>
                       <td className="separator"></td>
-                      <th colSpan="5"><span>Blob for Gallery →</span></th>
+                      <th colSpan="5" className="c5"><span>Blob for Gallery →</span></th>
                       <td className="separator"></td>
-                      <th colSpan="5"><span>Gallery CDN Amakai</span></th>
+                      <th colSpan="5" className="c5"><span>Gallery CDN Amakai</span></th>
                       <td className="separator"></td>
-                      <th colSpan="4"><span>Blob for CDN →</span></th>
+                      <th colSpan="4" className="c4"><span>Blob for CDN →</span></th>
                       <td className="separator"></td>
-                      <th colSpan="4"><span>CDN Amakai</span></th>
+                      <th colSpan="4" className="c4"><span>CDN Amakai</span></th>
                       <td className="separator"></td>
-                      <th colSpan="4"><span>CDN Verizon</span></th>
+                      <th colSpan="4"className="c4"><span>CDN Verizon</span></th>
                     </tr>
                     <tr>
-                        <th>Name</th>
+                        <th className="c5">Name</th>
                         <td className="separator"></td>
                         <th>
                           <a href="http://extendcustomvisual.blob.core.windows.net/gallery-test/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateTestGalleryBlob}`}>test</a>
@@ -357,7 +357,7 @@ var VisualList = React.createClass({
                           <a href="http://extendcustomvisual.blob.core.windows.net/gallery-prod/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateProdGalleryBlob}`}>prod</a>
                         </th>
                         <th>
-                          <a href="http://extendcustomvisual.blob.core.windows.net/powerbi-visuals/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateOldGalleryBlob}`}>prod old</a>
+                          <a href="http://extendcustomvisual.blob.core.windows.net/powerbi-visuals/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateOldGalleryBlob}`}>old</a>
                         </th>
                         <td className="separator"></td>
                         <th>
@@ -373,7 +373,7 @@ var VisualList = React.createClass({
                           <a href="https://visuals.azureedge.net/gallery-prod/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateProdGallery}`}>prod</a>
                         </th>
                         <th>
-                          <a href="https://visuals.azureedge.net/powerbi-visuals/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateOldGallery}`}>prod old</a>
+                          <a href="https://visuals.azureedge.net/powerbi-visuals/visualCatalog.json" target="_blank" title={`visualCatalog.json \nLast modified: ${dateOldGallery}`}>old</a>
                         </th>
                         <td className="separator"></td>
                         <th>
@@ -419,7 +419,7 @@ var VisualList = React.createClass({
                 <tbody>{rows}</tbody>
                 <tfoot>
                     <tr>
-                        <th colSpan="21">{rows.length}</th>
+                        <th>{rows.length || ''}</th>
                     </tr>
                 </tfoot>
             </table>
@@ -744,7 +744,6 @@ var VisualsBox = React.createClass({
   render: function() {
     return (
       <div className="visuals-box">
-        <h2>Gallery - CDN Custom Visuals sources monitor</h2>
         <VisualList 
           dataOldGalleryBlob={this.state.dataOldGalleryBlob} 
           dataTestGalleryBlob={this.state.dataTestGalleryBlob} 
