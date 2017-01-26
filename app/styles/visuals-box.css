@@ -38,7 +38,7 @@ tr {
 
 td,
 th {
-	width: 50px;
+	width: 40px;
 	display: inline-block;
 	vertical-align: top;
 	min-height: 40px;
@@ -49,7 +49,7 @@ th {
 }
 
 .c5 {
-	width: 250px;
+	width: 240px;
 }
 
 td.separator {
@@ -104,9 +104,19 @@ td p {
 	margin: .5em 0 0;
 }
 
+td mark {
+	display: inline-block;
+	vertical-align: top;
+	margin-right: .5em;
+	border-radius: 4px;
+	padding: 1px 4px;
+	font-size: 9px;
+}
+
 tbody tr {
 	transition: all .3s;
 	opacity: 1;
+	position: relative;
 }
 
 tbody tr:nth-child(2n) {
@@ -125,13 +135,28 @@ tbody tr.visual_diverged {
 	background: #FD7C79;
 }
 
+// tbody tr.visual_cdnonly {
+// 	background: #CCC;
+// }
+
 tbody td.file_errorheaders {
 	background: #FD7C79;
 }
 
+tbody tr::before {
+	content: '';
+	position: absolute;
+	left: -4px;
+	top: 0;
+	bottom: 0;
+	transition: all .2s;
+	background: yellow;
+	width: 4px;
+	transform: scaleY(0.001);
+}
 
-tbody tr:hover {
-	background: #f9e9a3;
+tbody tr:hover::before {
+	transform: scaleY(1);
 }
 
 .cell {
