@@ -55,7 +55,12 @@ var CellCDN = React.createClass({
       url: this.props.url,
       dataType: 'json',
       type: 'get',
-      cache: this.props.cache,
+      // beforeSend: function(xhr) {
+      //   xhr.setRequestHeader( "Pragma", "no-cache" );
+      //   xhr.setRequestHeader( "Cache-Control", "no-cache" );
+      //   xhr.setRequestHeader( "Expires", 0 );
+      // },
+      // cache: this.props.cache,
       success: function(result, status, xhr) {
         result.date = xhr.getResponseHeader('Last-Modified');
         result.headers = xhr.getAllResponseHeaders();
