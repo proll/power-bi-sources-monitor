@@ -108,7 +108,7 @@ var CellCDN = React.createClass({
 // CDN Visual
 var Visual = React.createClass({
     getInitialState: function() {
-      this.checkCount = 27;
+      this.checkCount = 25;
       this.checkResults = [];
       this.displayName = '';
 
