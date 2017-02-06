@@ -312,7 +312,6 @@ var Visual = React.createClass({
           })
 
         // test for apiVersion in approvedResorces and new api of package
-        console.log(this.checkResults.filter(result => result.type === 'cdn'))
         this.checkResults
           .filter(result => result.type === 'cdn')
           .reduce((acc, result) => {
