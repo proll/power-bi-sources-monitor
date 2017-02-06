@@ -44,6 +44,7 @@ var CellGallery = React.createClass({
       return (
           <td className={cellClass} title={`Released: ${this.state.date}`}>
             <a target="_blank" href={this.props.url}>{this.props.visual.visual.version}</a>
+            {}
           </td>
       );
   }
@@ -90,15 +91,16 @@ var CellCDN = React.createClass({
   },
 
   componentWillUpdate: function(props, state) {
-      this.props.onLoad('cdn', this.props.env, state.visual.version, state.headers, state.visual.displayName);
+      this.props.onLoad('cdn', this.props.env, state.visual.version, state.headers, state.visual.displayName, !!state.metadata, this.props.apiVersion);
   },
 
   render: function() {
-      var cellClass = this.state.loading ? 'cell cell_loading' : 'cell';
-      cellClass += this.state.metadata ? ' cell_pbiviz-tools' : '';
+      let cellClass = this.state.loading ? 'cell cell_loading' : 'cell';
+      cellClass += this.props.apiVersion ? ' cell-cdn_pbiviz-tools' : '';
       return (
           <td className={cellClass} title={this.state.headers}>
             <a target="_blank" href={this.props.url}>{this.state.visual.version}</a>
+            {this.props.apiVersion ? <small>v{this.props.apiVersion}</small> : ''}
           </td>
       );
   }
@@ -166,6 +168,11 @@ var Visual = React.createClass({
             resultMessage = '❌ Error in headers!';
             break;
 
+          case 'diverged api':
+            rowClass += ' visual_diverged';
+            resultMessage = '❌ inconsistent version in approvedResources for visual package';
+            break;
+
           default: 
             resultMessage = '✅';
         }
@@ -193,28 +200,28 @@ var Visual = React.createClass({
                 <CellGallery url={`https://visuals.azureedge.net/gallery-msit/${guid}/package.json`} env="msit" onLoad={this.checkVisual} visual={this.props.visualMsitGallery}/>
                 <CellGallery url={`https://visuals.azureedge.net/gallery-prod/${guid}/package.json`} env="prod" onLoad={this.checkVisual} visual={this.props.visualProdGallery}/>
                 <td className="separator"></td>
-                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={false}/>
-                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={false}/>
-                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={false}/>
-                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={false}/>
-                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={false}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionTestCdnBlob}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionDevCdnBlob}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionDxtCdnBlob}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionMsitCdnBlob}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionProdCdnBlob}/>
                 <td className="separator"></td>
-                <CellCDN url={`https://visuals.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={true}/>
-                <CellCDN url={`https://visuals.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true}/>
-                <CellCDN url={`https://visuals.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true}/>
-                <CellCDN url={`https://visuals.azureedge.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={true}/>
-                <CellCDN url={`https://visuals.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true}/>
+                <CellCDN url={`https://visuals.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionTestCdn}/>
+                <CellCDN url={`https://visuals.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDevCdn}/>
+                <CellCDN url={`https://visuals.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDxtCdn}/>
+                <CellCDN url={`https://visuals.azureedge.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionMsitCdn}/>
+                <CellCDN url={`https://visuals.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionProdCdn}/>
                 <td className="separator"></td>
-                <CellCDN url={`https://visuals2.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={true}/>
-                <CellCDN url={`https://visuals2.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true}/>
-                <CellCDN url={`https://visuals2.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true}/>
-                <CellCDN url={`https://visuals2.azureedge.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={true}/>
-                <CellCDN url={`https://visuals2.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true}/>
+                <CellCDN url={`https://visuals2.azureedge.net/test/${guid}.json`} env="test" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionTestCdn2}/>
+                <CellCDN url={`https://visuals2.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDevCdn2}/>
+                <CellCDN url={`https://visuals2.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDxtCdn2}/>
+                <CellCDN url={`https://visuals2.azureedge.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionMsitCdn2}/>
+                <CellCDN url={`https://visuals2.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionProdCdn2}/>
             </tr>
         );
     },
 
-    checkVisual: function(type, env, version, headers, displayName) {
+    checkVisual: function(type, env, version, headers, displayName, isNewApi, apiVersion) {
       const that = this;
       const st = {};
 
@@ -229,7 +236,9 @@ var Visual = React.createClass({
           type,
           env, 
           version,
-          headers
+          headers,
+          isNewApi,
+          apiVersion
         });
       }
 
@@ -302,6 +311,15 @@ var Visual = React.createClass({
             return acc
           })
 
+        // test for apiVersion in approvedResorces and new api of package
+        console.log(this.checkResults.filter(result => result.type === 'cdn'))
+        this.checkResults
+          .filter(result => result.type === 'cdn')
+          .reduce((acc, result) => {
+            if ((!acc.isNewApi && !!acc.apiVersion) || (acc.isNewApi && !acc.apiVersion)) st.result = 'diverged api';
+            return result
+          })
+
         that.setState(st)
       }
     }
@@ -343,12 +361,42 @@ var VisualList = React.createClass({
         const dateMsitCdn2 = utils.formatDate(this.props.dataMsitCdn2.date);
         const dateProdCdn2 = utils.formatDate(this.props.dataProdCdn2.date);
 
-        const guids = this.props.dataTestGalleryBlob.visuals.map(v => v.visual.guid);
-        const galleryCount = guids.length;
-        const guidsCdn = Object.keys(this.props.dataTestCdnBlob.visuals);
-        const cdnCount = guidsCdn.length;
-        guidsCdn.forEach(guidCdn => { if (guids.indexOf(guidCdn) < 0) guids.push(guidCdn) });
-        // guidsCdn.forEach(guidCdn => { if (guids.indexOf(guidCdn) < 0) guids.unshift(guidCdn) });
+        // get all unique guids from all platforms
+        const guidsHash = {};
+
+        // gallery guids
+        this.props.dataTestGalleryBlob.visuals.forEach(v => guidsHash[v.visual.guid] = true);
+        this.props.dataDevGalleryBlob.visuals.forEach(v => guidsHash[v.visual.guid] = true);
+        this.props.dataDxtGalleryBlob.visuals.forEach(v => guidsHash[v.visual.guid] = true);
+        this.props.dataMsitGalleryBlob.visuals.forEach(v => guidsHash[v.visual.guid] = true);
+        this.props.dataProdGalleryBlob.visuals.forEach(v => guidsHash[v.visual.guid] = true);
+        this.props.dataTestGallery.visuals.forEach(v => guidsHash[v.visual.guid] = true);
+        this.props.dataDevGallery.visuals.forEach(v => guidsHash[v.visual.guid] = true);
+        this.props.dataDxtGallery.visuals.forEach(v => guidsHash[v.visual.guid] = true);
+        this.props.dataMsitGallery.visuals.forEach(v => guidsHash[v.visual.guid] = true);
+        this.props.dataProdGallery.visuals.forEach(v => guidsHash[v.visual.guid] = true);
+
+        // cdn guids
+        Object.keys(this.props.dataTestCdnBlob.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataDevCdnBlob.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataDxtCdnBlob.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataMsitCdnBlob.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataProdCdnBlob.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataTestCdn.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataDevCdn.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataDxtCdn.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataMsitCdn.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataProdCdn.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataTestCdn2.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataDevCdn2.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataDxtCdn2.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataMsitCdn2.visuals).forEach(guid => guidsHash[guid] = true);
+        Object.keys(this.props.dataProdCdn2.visuals).forEach(guid => guidsHash[guid] = true);
+
+        const galleryCount = this.props.dataTestGalleryBlob.visuals.length;
+        const cdnCount = Object.keys(this.props.dataTestCdnBlob.visuals).length;
+        const guids = Object.keys(guidsHash).sort();
+
 
         guids.forEach(function(guid, i) {
             const visualTestBlob = this.props.dataTestGalleryBlob.visuals.find(v => guid === v.visual.guid) || visualDefault;
@@ -375,6 +423,21 @@ var VisualList = React.createClass({
                 visualDxtGallery={visualDxt} 
                 visualMsitGallery={visualMsit} 
                 visualProdGallery={visualProd}
+                versionTestCdnBlob={this.props.dataTestCdnBlob.visuals[guid] ? this.props.dataTestCdnBlob.visuals[guid].apiVersion : ''}
+                versionDevCdnBlob={this.props.dataDevCdnBlob.visuals[guid] ? this.props.dataDevCdnBlob.visuals[guid].apiVersion : ''}
+                versionDxtCdnBlob={this.props.dataDxtCdnBlob.visuals[guid] ? this.props.dataDxtCdnBlob.visuals[guid].apiVersion : ''}
+                versionMsitCdnBlob={this.props.dataMsitCdnBlob.visuals[guid] ? this.props.dataMsitCdnBlob.visuals[guid].apiVersion : ''}
+                versionProdCdnBlob={this.props.dataProdCdnBlob.visuals[guid] ? this.props.dataProdCdnBlob.visuals[guid].apiVersion : ''}
+                versionTestCdn={this.props.dataTestCdn.visuals[guid] ? this.props.dataTestCdn.visuals[guid].apiVersion : ''}
+                versionDevCdn={this.props.dataDevCdn.visuals[guid] ? this.props.dataDevCdn.visuals[guid].apiVersion : ''}
+                versionDxtCdn={this.props.dataDxtCdn.visuals[guid] ? this.props.dataDxtCdn.visuals[guid].apiVersion : ''}
+                versionMsitCdn={this.props.dataMsitCdn.visuals[guid] ? this.props.dataMsitCdn.visuals[guid].apiVersion : ''}
+                versionProdCdn={this.props.dataProdCdn.visuals[guid] ? this.props.dataProdCdn.visuals[guid].apiVersion : ''}
+                versionTestCdn2={this.props.dataTestCdn2.visuals[guid] ? this.props.dataTestCdn2.visuals[guid].apiVersion : ''}
+                versionDevCdn2={this.props.dataDevCdn2.visuals[guid] ? this.props.dataDevCdn2.visuals[guid].apiVersion : ''}
+                versionDxtCdn2={this.props.dataDxtCdn2.visuals[guid] ? this.props.dataDxtCdn2.visuals[guid].apiVersion : ''}
+                versionMsitCdn2={this.props.dataMsitCdn2.visuals[guid] ? this.props.dataMsitCdn2.visuals[guid].apiVersion : ''}
+                versionProdCdn2={this.props.dataProdCdn2.visuals[guid] ? this.props.dataProdCdn2.visuals[guid].apiVersion : ''}
                 key={i} />
             );
         }.bind(this));
