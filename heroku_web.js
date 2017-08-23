@@ -7,6 +7,8 @@ var url = require('url');
 var connect = require('connect'),
 	httpProxy = require('http-proxy');
 
+var storeDataCollector = require('./store-data-collector');
+
 // Get values from config, or use defaults.
 var port = process.env.PORT || 5000;
 var base = './app';
@@ -18,6 +20,14 @@ var middleware = [
 	// if request points to non existing file, route to index.html
 	function(req, res, next){
 		var requestedPath = url.parse(req.url).pathname;
+		if (requestedPath === "/uncommented") {
+			storeDataCollector.collect_uncommented_reviews((reviews)=>{
+				res.writeHead(200, { 'Content-Type': 'application/json' });
+				res.end(JSON.stringify(reviews), "utf-8");
+			});
+			return;
+		}
+
 		fs.exists(base + requestedPath, function(exists){
 			if(exists){
 				return next();
