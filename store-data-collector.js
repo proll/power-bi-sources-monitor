@@ -214,5 +214,21 @@ function collect_uncommented_reviews(callback) {
       });
 }
 
+function get_office_store_visuals(callback) {
+    request(`https://store.office.com/api/addins/search?ad=US&productgroup=PowerBI&orderby=Desc&orderfield=None&qu=&rs=en-US&skiptoitem=0&top=1000&ui=en-US`,
+    function(error, response, body) {
+        if (response.statusCode != 200) {
+            return;
+        }
+
+        if (!body) {
+            return;
+        }
+
+        callback(body);
+    });
+}
+
 module.exports.collect_all_data = collect_all_data;
 module.exports.collect_uncommented_reviews = collect_uncommented_reviews;
+module.exports.get_office_store_visuals = get_office_store_visuals;

@@ -20,6 +20,35 @@ var utils = {
 
     return date + '/' + month + year + ' ' + hours + ':' + minutes;
   },
+
+  compareVersions: function(ver1, ver2) {
+    var ver1List = ver1.split(".");
+    var ver2List = ver2.split(".");
+
+    let cnt = ver1List.length < ver2List.length ? ver1List.length : ver2List.length;
+
+    for(var versionIndex = 0; versionIndex < cnt; versionIndex++) {
+      if (+ver1List[versionIndex] === +ver2List[versionIndex]) {
+        continue;
+      }
+
+      if (+ver1List[versionIndex] < +ver2List[versionIndex]) {
+        return -1;
+      }
+      else {
+        return 1;
+      }
+    }
+
+    if (ver1List.length < ver2List.length) {
+      return -1;
+    }
+    if (ver1List.length > ver2List.length) {
+      return 1;
+    }
+
+    return 0;
+  }
 }
 
 var CellGallery = React.createClass({
@@ -82,7 +111,8 @@ var CellCDN = React.createClass({
           displayName: ''
         },
         date: '',
-        headers: ''
+        headers: '',
+        isOutdatedVisualVersion: false
     };
   },
 
@@ -97,9 +127,14 @@ var CellCDN = React.createClass({
   render: function() {
       let cellClass = this.state.loading ? 'cell cell_loading' : 'cell';
       cellClass += this.props.apiVersion ? ' cell-cdn_pbiviz-tools' : '';
+      
+      let linkClassNames = "";
+      if (utils.compareVersions(this.props.latestVisualVersion, this.state.visual.version) > 0) {
+        linkClassNames = "outdated_visual_version"
+      }
       return (
           <td className={cellClass} title={this.state.headers}>
-            <a target="_blank" href={this.props.url}>{this.state.visual.version}</a>
+            <a className={linkClassNames} target="_blank" href={this.props.url}>{this.state.visual.version}</a>
             {this.props.apiVersion ? <small>v{this.props.apiVersion}</small> : ''}
           </td>
       );
@@ -110,13 +145,14 @@ var CellCDN = React.createClass({
 // CDN Visual
 var Visual = React.createClass({
     getInitialState: function() {
-      this.checkCount = 25;
+      this.checkCount = 12;
       this.checkResults = [];
       this.displayName = '';
 
       return {
           result: '',
           loading: true,
+          maxVersionOfVisual: "1.0.0"
       };
     },
 
@@ -161,6 +197,40 @@ var Visual = React.createClass({
       return "⛔No PhantomJS";
     },
 
+    checkOutdatedApiVersion: function() {
+      var versionArray = 
+      [
+        this.props.versionDevCdnBlob || "1000",
+        this.props.versionDxtCdnBlob || "1000",
+        this.props.versionMsitCdnBlob || "1000",
+        this.props.versionProdCdnBlob || "1000",
+        this.props.versionDevCdn || "1000",
+        this.props.versionDxtCdn || "1000",
+        this.props.versionMsitCdn || "1000",
+        this.props.versionProdCdn || "1000",
+        this.props.versionDevCdn2 || "1000",
+        this.props.versionDxtCdn2 || "1000",
+        this.props.versionMsitCdn2 || "1000",
+        this.props.versionProdCdn2 || "1000"
+      ];
+
+      var minApi = versionArray[0];
+
+      versionArray.forEach( api => {
+        if (utils.compareVersions(api, minApi) >= 0) {
+          minApi = api;
+        }
+      });
+
+      var apiVersion = +(minApi || "1000").replace(/(\.)*/g,"");
+
+      if (apiVersion <= 140) {
+        return "🛑Outdated API version used";
+      }
+      
+      return "";
+    },
+
     render: function() {
         const guid = this.props.guid;
 
@@ -169,7 +239,7 @@ var Visual = React.createClass({
         switch(this.state.result) {
           case 'progress':
             rowClass += ' visual_progress';
-            resultMessage = '✅  Visual version is different, it\'s traveling with trains';
+            resultMessage = '🚆  Visual version is different, it\'s traveling with trains';
             break;
 
           case 'diverged test':
@@ -215,6 +285,8 @@ var Visual = React.createClass({
 
         var isPhantomJSApprovedMessage = this.isPhantomJSApproved();
 
+        var isOutdatedApiUsed = this.checkOutdatedApiVersion();
+
         return (
             <tr className={rowClass}>
                 <td className="c5">
@@ -223,22 +295,23 @@ var Visual = React.createClass({
                   <p>{this.renderBadges(this.props.cdnOnly)}</p>
                   <p>{resultMessage}</p>
                   <p>{isPhantomJSApprovedMessage}</p>
+                  <p>{isOutdatedApiUsed}</p>
                 </td>
                 <td className="separator"></td>
-                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionDevCdnBlob}/>
-                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionDxtCdnBlob}/>
-                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionMsitCdnBlob}/>
-                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionProdCdnBlob}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionDevCdnBlob} latestVisualVersion={this.state.maxVersionOfVisual}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionDxtCdnBlob} latestVisualVersion={this.state.maxVersionOfVisual}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionMsitCdnBlob} latestVisualVersion={this.state.maxVersionOfVisual}/>
+                <CellCDN url={`http://extendcustomvisual.blob.core.windows.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={false} apiVersion={this.props.versionProdCdnBlob} latestVisualVersion={this.state.maxVersionOfVisual}/>
                 <td className="separator"></td>
-                <CellCDN url={`https://visuals.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDevCdn}/>
-                <CellCDN url={`https://visuals.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDxtCdn}/>
-                <CellCDN url={`https://visuals.azureedge.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionMsitCdn}/>
-                <CellCDN url={`https://visuals.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionProdCdn}/>
+                <CellCDN url={`https://visuals.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDevCdn} latestVisualVersion={this.state.maxVersionOfVisual}/>
+                <CellCDN url={`https://visuals.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDxtCdn} latestVisualVersion={this.state.maxVersionOfVisual}/>
+                <CellCDN url={`https://visuals.azureedge.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionMsitCdn} latestVisualVersion={this.state.maxVersionOfVisual}/>
+                <CellCDN url={`https://visuals.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionProdCdn} latestVisualVersion={this.state.maxVersionOfVisual}/>
                 <td className="separator"></td>
-                <CellCDN url={`https://visuals2.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDevCdn2}/>
-                <CellCDN url={`https://visuals2.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDxtCdn2}/>
-                <CellCDN url={`https://visuals2.azureedge.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionMsitCdn2}/>
-                <CellCDN url={`https://visuals2.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionProdCdn2}/>
+                <CellCDN url={`https://visuals2.azureedge.net/dev/${guid}.json`} env="dev" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDevCdn2} latestVisualVersion={this.state.maxVersionOfVisual}/>
+                <CellCDN url={`https://visuals2.azureedge.net/dxt/${guid}.json`} env="dxt" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionDxtCdn2} latestVisualVersion={this.state.maxVersionOfVisual}/>
+                <CellCDN url={`https://visuals2.azureedge.net/msit/${guid}.json`} env="msit" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionMsitCdn2} latestVisualVersion={this.state.maxVersionOfVisual}/>
+                <CellCDN url={`https://visuals2.azureedge.net/prod/${guid}.json`} env="prod" onLoad={this.checkVisual} cache={true} apiVersion={this.props.versionProdCdn2} latestVisualVersion={this.state.maxVersionOfVisual}/>
             </tr>
         );
     },
@@ -268,23 +341,28 @@ var Visual = React.createClass({
 
       // check results if all loaded
       if (!this.checkCount) {
+        let maxVerViz = this.checkResults[0];
+        this.checkResults.forEach( v => { 
+          if (utils.compareVersions(v.version, maxVerViz.version) > 0) {
+            maxVerViz = v;
+          }
+        });
+        st.maxVersionOfVisual = maxVerViz.version;
+
+        // check visual version only on CDN's
+        // TODO check that diffrenet version in CDNs of one env
+        var devCndVisualVersion = _.max(this.checkResults.filter( v => v.env == "dev" && v.type == "cdn").map( v => +v.version.replace(/(\.)*/g,"") ));
+        var dxtCndVisualVersion = _.max(this.checkResults.filter( v => v.env == "dxt" && v.type == "cdn").map( v => +v.version.replace(/(\.)*/g,"") ));
+        var msitCndVisualVersion = _.max(this.checkResults.filter( v => v.env == "msit" && v.type == "cdn").map( v => +v.version.replace(/(\.)*/g,"") ));
+        var prodCndVisualVersion = _.max(this.checkResults.filter( v => v.env == "prod" && v.type == "cdn").map( v => +v.version.replace(/(\.)*/g,"") ));
         // progress check for all environvent - at least one different version
         if (
-          this.props.visualTestGalleryBlob.visual.version !== this.props.visualDevGalleryBlob.visual.version
-          || this.props.visualDevGalleryBlob.visual.version !== this.props.visualDxtGalleryBlob.visual.version
-          || this.props.visualDxtGalleryBlob.visual.version !== this.props.visualMsitGalleryBlob.visual.version
-          || this.props.visualMsitGalleryBlob.visual.version !== this.props.visualProdGalleryBlob.visual.version
+          devCndVisualVersion !== dxtCndVisualVersion
+          || dxtCndVisualVersion !== msitCndVisualVersion
+          || msitCndVisualVersion !== prodCndVisualVersion
         ) {
           st.result = 'progress';
         }
-
-        // test env version divergation check
-        this.checkResults
-          .filter(result => result.env === 'test')
-          .reduce((acc, result) => {
-            if (acc.version !== result.version) st.result = 'diverged test';
-            return result
-          })
 
         // dev env version divergation check
         this.checkResults
@@ -341,7 +419,7 @@ var Visual = React.createClass({
             return result
           })
 
-        that.setState(st)
+        that.setState(st);
       }
     }
 });
@@ -380,6 +458,7 @@ var VisualList = React.createClass({
         const dateDxtCdn2 = utils.formatDate(this.props.dataDxtCdn2.date);
         const dateMsitCdn2 = utils.formatDate(this.props.dataMsitCdn2.date);
         const dateProdCdn2 = utils.formatDate(this.props.dataProdCdn2.date);
+        const officeStoreVisualList = this.props.officeStoreVisualList;
 
         // get all unique guids from all platforms
         const guidsHash = {};
@@ -792,6 +871,15 @@ var VisualsBox = React.createClass({
         success: function(result, status, xhr) {
             st.dataProdCdn2 = {visuals: result, date: xhr.getResponseHeader('Last-Modified')};
         }.bind(this)
+      }),
+      $.ajax({
+        url: '/officestorevisuals',
+        dataType: 'json',
+        type: 'get',
+        // cache: false,
+        success: function(result, status, xhr) {
+          st.officeStoreVisualList = {visuals: JSON.parse(result), date: xhr.getResponseHeader('Last-Modified')};
+        }.bind(this)
       })
     ).done(function() {
       st.loading = false;
@@ -876,6 +964,9 @@ var VisualsBox = React.createClass({
       dataProdCdn2: {
         visuals: []
       },
+      officeStoreVisualList: {
+        visuals: []
+      }
     };
   },
 
@@ -912,6 +1003,7 @@ var VisualsBox = React.createClass({
           dataDxtCdn2={this.state.dataDxtCdn2} 
           dataMsitCdn2={this.state.dataMsitCdn2} 
           dataProdCdn2={this.state.dataProdCdn2} 
+          officeStoreVisualList={this.state.officeStoreVisualList}
         />
       </div>
     );

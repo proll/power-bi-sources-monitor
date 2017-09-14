@@ -28,6 +28,14 @@ var middleware = [
 			return;
 		}
 
+		if (requestedPath === "/officestorevisuals") {
+			storeDataCollector.get_office_store_visuals ((visuals)=>{
+				res.writeHead(200, { 'Content-Type': 'application/json' });
+				res.end(JSON.stringify(visuals), "utf-8");
+			});
+			return;
+		}
+
 		fs.exists(base + requestedPath, function(exists){
 			if(exists){
 				return next();
