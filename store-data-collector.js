@@ -200,15 +200,6 @@ function collect_uncommented_reviews(callback) {
         }, this);
     
         reviews = _.sortBy(reviews, "earlyDate");
-    
-        try {
-          response.render('pages/comments', {
-            reviews: reviews
-          });
-        }
-        catch(exception) {
-          console.log(exception);
-        }
 
         callback(reviews);
       });

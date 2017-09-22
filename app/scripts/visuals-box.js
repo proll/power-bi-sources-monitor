@@ -291,7 +291,7 @@ var Visual = React.createClass({
             <tr className={rowClass}>
                 <td className="c5">
                   <span>{this.displayName}</span><br/>
-                  <small><a target="_blank" href={`https://app.powerbi.com/visuals/show/${guid}`}>{guid}</a></small>
+                  <small><a target="_blank" href={`https://appsource.microsoft.com/en-us/marketplace/apps?page=1&src=office&product=power-bi-desktop&search=${( this.displayName.match(/[A-Z][a-z]+/g) || [""] ).join(" ")}`}>{guid}</a></small>
                   <p>{this.renderBadges(this.props.cdnOnly)}</p>
                   <p>{resultMessage}</p>
                   <p>{isPhantomJSApprovedMessage}</p>
