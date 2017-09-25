@@ -123,32 +123,14 @@ function collect_all_data(callback) {
                             var reviewid = base[0].attribs["data-reviewid"];
                             var reviewTitleText =reviews.find(`#Review${reviewIndex}-Title`).contents().text();
                             var reviewBodyText =reviews.find(`#Review${reviewIndex}-Body`).contents().text();
-                            var reviewDate = new Date(reviews.find(`#Review${reviewIndex}-Date`).contents().text());
+                            var reviewDate = reviews.find(`#Review${reviewIndex}-Date`).contents().text();
                             var reviewAuthor =reviews.find(`#Review${reviewIndex}-Author`).contents().text();
 
                             //Passed time 
-                            var passedTime = "hours";
-                            var dateDiff = (new Date() - reviewDate) / 1000 / 60 / 60;
+                            var time = get_passed_time(reviewDate);
 
-                            if (dateDiff > 24) {
-                                passedTime = "days"
-                                dateDiff = dateDiff / 24;
-                            }
-
-                            if (dateDiff > 7 && dateDiff < 31) {
-                                passedTime = "weeks"
-                                dateDiff = dateDiff / 7;
-                            }
-
-                            if (dateDiff > 31) {
-                                passedTime = "month"
-                                dateDiff = dateDiff / 31;
-                            }
-
-                            if (dateDiff > 12) {
-                                passedTime = "years"
-                                dateDiff = dateDiff / 12;
-                            }
+                            var passedTime = time.passedTime;
+                            var dateDiff = time.dateDiff;
                             
                             asset.reviews.push({
                                 reviewid: reviewid,
@@ -184,8 +166,39 @@ function collect_all_data(callback) {
     );
 }
 
+function get_passed_time(reviewDate) {
+    //Passed time 
+    var passedTime = "hours";
+    var dateDiff = (new Date() - new Date(reviewDate)) / 1000 / 60 / 60;
+
+    if (dateDiff > 24) {
+        passedTime = "days"
+        dateDiff = dateDiff / 24;
+    }
+
+    if (dateDiff > 7 && dateDiff < 31) {
+        passedTime = "weeks"
+        dateDiff = dateDiff / 7;
+    }
+
+    if (dateDiff > 31) {
+        passedTime = "month"
+        dateDiff = dateDiff / 31;
+    }
+
+    if (dateDiff > 12) {
+        passedTime = "years"
+        dateDiff = dateDiff / 12;
+    }
+
+    return {
+        dateDiff: dateDiff,
+        passedTime: passedTime
+    }
+}
+
 function collect_uncommented_reviews(callback) {
-    collect_all_data((reviews)=> {
+    get_appstore_visuals_reviews((reviews)=> {
         reviews.forEach(function(asset) {
           asset.noCommentsReview = asset.reviews.some(rev => {
             if (rev.comments === undefined) {
@@ -195,11 +208,11 @@ function collect_uncommented_reviews(callback) {
             return false;
           });
     
-          asset.earlyDate = (_.minBy(asset.reviews.filter((rev) => rev.comments === undefined),"date")|| {date: null}).date;
-          asset.reviews = _.sortBy(asset.reviews, "date");
+          // asset.earlyDate = (_.minBy(asset.reviews.filter((rev) => rev.comments === undefined),"date")|| {date: null}).date;
+          asset.reviews = _.sortBy(asset.reviews, "rating");
         }, this);
     
-        reviews = _.sortBy(reviews, "earlyDate");
+        reviews = _.sortBy(reviews, "avrRating");
 
         callback(reviews);
       });
@@ -217,6 +230,58 @@ function get_office_store_visuals(callback) {
         }
 
         callback(body);
+    });
+}
+
+function get_appstore_visuals_reviews(callback) {
+    var assetsList = _.cloneDeep(assetsListSource);
+    var processedAssets = 0;
+    assetsList.forEach( (assetItem, indexId) => {
+        var asset = assetItem;
+        var index = indexId;
+        var visual
+        asset.reviews = [];
+
+        request(`https://appsource.microsoft.com/view/app/${asset.assetId}/reviews?version=2017-04-24`,
+        function(error, response, body) {
+            processedAssets++;
+            if (response.statusCode != 200) {
+                return;
+            }
+    
+            if (!body) {
+                return;
+            }
+
+            try {
+                var responseJson = JSON.parse(body);
+                var avrRating = 0;
+                responseJson.forEach(responseJson => {
+                    var time = get_passed_time(responseJson.submitted);
+                    assetsList[index].reviews.push({
+                        reviewid: responseJson.id,
+                        title: responseJson.title,
+                        body: responseJson.description,
+                        date: responseJson.submitted,
+                        author: `${responseJson.firstName || ""} ${responseJson.lastName || ""}`,
+                        assetid: asset.assetId,
+                        visual: asset.Visual,
+                        dateDiff: time.dateDiff,
+                        passedTime: time.passedTime,
+                        rating: responseJson.rating
+                    });
+                    avrRating += +responseJson.rating;
+                });
+                assetsList[index].avrRating = avrRating / responseJson.length;
+            }
+            catch(exception) {
+                debugger;
+            }
+    
+            if (processedAssets == assetsList.length && callback) {
+                callback(assetsList);
+            } 
+        });
     });
 }
 

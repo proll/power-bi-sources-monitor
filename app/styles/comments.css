@@ -1,0 +1,55 @@
+p {
+    background-color: gainsboro;
+    padding: 15px;
+}
+
+.visual {
+    background-color: gray;
+    max-width: 70%
+}
+
+.visual ul {
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+}
+
+.visual a {
+    display: block;
+    padding-top: 15px;
+    padding-left: 15px;
+}
+
+.visual a,a:visited>span {
+    font-size: 17pt;
+    font-family: monospace;
+    text-decoration: none;
+}
+
+.visual a,a:visited>span.visualName {
+    color: white;
+    text-decoration: none;
+}
+
+.review {
+    max-width: 97%;
+}
+
+.rating5 {
+    color: green;
+}
+
+.rating4 {
+    color: yellowgreen;
+}
+
+.rating3 {
+    color: yellow;
+}
+
+.rating2 {
+    color: orange;
+}
+
+.rating1 {
+    color: red;
+}
