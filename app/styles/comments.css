@@ -1,10 +1,10 @@
 p {
-    background-color: gainsboro;
-    padding: 15px;
+    padding: 5px;
+    margin-top: 0px
 }
 
 .visual {
-    background-color: gray;
+    background-color: rgb(237, 238, 240);
     max-width: 70%
 }
 
@@ -26,12 +26,14 @@ p {
 }
 
 .visual a,a:visited>span.visualName {
-    color: white;
+    color: #000000;
+    font-weight: bold;
     text-decoration: none;
 }
 
 .review {
     max-width: 97%;
+    background-color: #FFFFFF
 }
 
 .rating5 {
