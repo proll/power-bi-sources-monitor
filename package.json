@@ -2,8 +2,15 @@
   "author": "Gleb Polushkin",
   "name": "power-bi-sources-monitor",
   "dependencies": {
+    "cheerio": "1.0.0-rc.2",
     "connect": "2.5.x",
-    "http-proxy": "0.8.x"
+    "grunt": "1.0.1",
+    "grunt-cli": "1.2.0",
+    "grunt-contrib-uglify": "3.0.1",
+    "http-proxy": "0.8.x",
+    "lodash": "4.17.4",
+    "request": "2.81.0",
+    "slackbots": "1.0.2"
   },
   "scripts": {
     "start": "node tasks/task-server.js"

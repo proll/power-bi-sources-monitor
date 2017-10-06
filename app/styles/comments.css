@@ -1,0 +1,57 @@
+p {
+    padding: 5px;
+    margin-top: 0px
+}
+
+.visual {
+    background-color: rgb(237, 238, 240);
+    max-width: 70%
+}
+
+.visual ul {
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+}
+
+.visual a {
+    display: block;
+    padding-top: 15px;
+    padding-left: 15px;
+}
+
+.visual a,a:visited>span {
+    font-size: 17pt;
+    font-family: monospace;
+    text-decoration: none;
+}
+
+.visual a,a:visited>span.visualName {
+    color: #000000;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.review {
+    max-width: 97%;
+    background-color: #FFFFFF
+}
+
+.rating5 {
+    color: green;
+}
+
+.rating4 {
+    color: yellowgreen;
+}
+
+.rating3 {
+    color: yellow;
+}
+
+.rating2 {
+    color: orange;
+}
+
+.rating1 {
+    color: red;
+}

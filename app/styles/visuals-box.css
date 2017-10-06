@@ -45,11 +45,11 @@ th {
 }
 
 .c4 {
-	width: 210px;
+	width: 168px;
 }
 
 .c5 {
-	width: 190px;
+	width: 290px;
 }
 
 td.separator {
@@ -193,4 +193,8 @@ tbody tr:hover::before {
 .cell a:hover {
 	text-decoration: underline;
 	color: #000;
+}
+
+.cell a.outdated_visual_version {
+	color: red
 }
